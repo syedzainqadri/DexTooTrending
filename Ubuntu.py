@@ -8,14 +8,8 @@ from selenium.webdriver.firefox.options import Options
 from multiprocessing import Process
 import time
 
-def check_ip(driver, url="https://api.ipify.org"):
-    driver.get(url)
-    ip = driver.find_element_by_tag_name("body").text
-    print("Current IP:", ip)
-
-
 def main():
-    iteration = 0
+    i = 0
     while True:
         
         
@@ -24,18 +18,13 @@ def main():
         myProxy = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"
 
         proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Replace with your details
-
-        if iteration>= 10:
-            print('-----proxy limit complete-----')
-            break
-        iteration+=1
+        
         firefox_options = Options()
         # firefox_options.add_argument('--headless')  # Run Firefox in headless mode
         firefox_options.add_argument(f'--proxy-server=http://{proxy_url}')
 
         driver = webdriver.Firefox(options=firefox_options)
-        print(f'running{iteration} times with following proxy:',myProxy)
-        check_ip(driver)
+        print('running with following proxy:',myProxy)
         
         url = "https://www.dextools.io/app/en/solana/pair-explorer/A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
         driver.get(url)
@@ -50,12 +39,11 @@ def main():
             sleep(random.randint(3,5))
             try:
                 verify=driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label')
-                
+                print('box xpath')
             except:
                 verify=driver.find_element(By.CSS_SELECTOR,'label[class="ctp-checkbox-label"]')
-                
+                print('box selector')
             verify.click()
-            print('----captcha resolved----')
 
         except:
             
@@ -148,10 +136,6 @@ def main():
         print('complete')
         driver.delete_all_cookies()
         driver.quit()
-    
-
-    print('----completed the program----')
-    print("-----Change the Proxy Now-----")
         
 
 
