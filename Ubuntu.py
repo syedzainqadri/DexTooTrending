@@ -8,9 +8,17 @@ from selenium.webdriver.firefox.options import Options
 from multiprocessing import Process
 import time
 
+def check_ip(driver, url="https://api.ipify.org"):
+    driver.get(url)
+    ip = driver.find_element(By.TAG_NAME,"body").text
+    print("Current IP:", ip)
+
 def main():
-    i = 0
+    iteration = 0
     while True:
+        if iteration>=10:
+            print('-----limit completed----')
+            break
         
         
         print("[+] Dextools Bot Starting")
@@ -25,6 +33,8 @@ def main():
 
         driver = webdriver.Firefox(options=firefox_options)
         print('running with following proxy:',myProxy)
+
+        # check_ip(driver)
         
         url = "https://www.dextools.io/app/en/solana/pair-explorer/A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
         driver.get(url)
@@ -38,18 +48,16 @@ def main():
             print('capcha iframe found by xpath')
             sleep(random.randint(3,5))
             try:
-                verify=driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label')
+                driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
                 print('box xpath')
             except:
-                verify=driver.find_element(By.CSS_SELECTOR,'label[class="ctp-checkbox-label"]')
-                print('box selector')
-            verify.click()
+                print('no check button')
 
         except:
             
             print('------No captcha ------')
         
-        sleep(10)
+        sleep(random.randint(3,5))
         try:
             driver.find_element(By.CLASS_NAME,'card__close').click()
             print('1st close button by class')
@@ -116,6 +124,7 @@ def main():
         print('get the screen height',screen_height)
         i = 1
             # scroll one screen height each time
+        scrol_numb= random.randint(2,4)
         while True:
             driver.execute_script("window.scrollTo(0, {screen_height}*{i});".format(screen_height=screen_height, i=i))
             print(f'scrloing {i} time')
@@ -125,14 +134,13 @@ def main():
             scroll_height = driver.execute_script("return document.body.scrollHeight;") 
             print(f'setting the now height:',screen_height) 
             # Break the loop when the height we need to scroll to is larger than the total scroll height
-
-            if i>4:
+            if i==scrol_numb:
                 print('break the loop bcz the scroll window ended...')
                 break
 
 
 
-
+        iteration+=1
         print('complete')
         driver.delete_all_cookies()
         driver.quit()
