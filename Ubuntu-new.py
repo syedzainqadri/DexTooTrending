@@ -1,27 +1,11 @@
-
 from selenium import webdriver
-from time import sleep
 from selenium.webdriver.common.by import By
-# from selenium.webdriver.common.keys import Keys
-import random
 from selenium.webdriver.firefox.options import Options
+from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.firefox.service import Service as FirefoxService
-# from webdriver_manager.firefox import GeckoDriverManager
 from multiprocessing import Process
-import time
-import requests
-
-
-
-
-
-def load_proxies(file_path):
-    """ Load the list of proxies from a given file. """
-    with open(file_path, 'r') as file:
-        proxies = [line.strip() for line in file if line.strip()]
-    random.shuffle(proxies)  # Shuffle to randomize the order initially
-    return proxies
-
+from time import sleep
+import random
 
 def check_ip(driver):
     """Function to fetch and print the current IP using the driver instance."""
@@ -29,63 +13,48 @@ def check_ip(driver):
     ip = driver.find_element(By.TAG_NAME, "body").text
     print("Current IP:", ip)
 
-
 def setup_driver(proxy_url):
     """Setup Firefox WebDriver with the specified proxy settings."""
     firefox_options = Options()
-    firefox_options.add_argument('--headless')  # Enable headless mode for automation
+    # firefox_options.add_argument('--headless')  # Enable headless mode for automation
     firefox_options.add_argument(f'--proxy-server=http://{proxy_url}')
-    # service = FirefoxService(executable_path=GeckoDriverManager().install())
-    driver = webdriver.Firefox(options=firefox_options)
+    service = FirefoxService(executable_path=GeckoDriverManager().install())
+    driver = webdriver.Firefox(service=service, options=firefox_options)
     return driver
 
 def main():
     iteration = 0
-    while True:
+    while iteration < 100:
         try:
-            if iteration>=100:
-                print('-----limit completed----')
-                break
-            print("[+] Dextools Bot Starting")
-            # proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Replace with your details
-            # proxy_url = proxies.pop()
-            proxy_url=requests.get(
-                 "https://ipv4.webshare.io/",
-                    proxies={
-                     "http": "http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80/",
-                     "https": "http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80/"
-                            }
-                    ).text
-            print("proxy is:",proxy_url)
+            print("[+] Dextools Bot Starting, iteration:", iteration)
+
+            proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Assuming each new session gets a new IP
             driver = setup_driver(proxy_url)
-            
-            
+
+            check_ip(driver)  # Verify IP rotation is working
+
             url = "https://www.dextools.io/app/en/solana/pair-explorer/A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
             driver.get(url)
             driver.implicitly_wait(30)
             print("[+] Go to Dextools")
-            # check_ip(driver)
-            # sleep(5)
 
-            # try:
+            # Actions performed on the website
+            try:
                 
-            #     driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-            #     print('capcha iframe found by xpath')
-            #     sleep(random.randint(3,5))
-            #     try:
-            #         driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
-            #         print('box xpath')
-            #     except:
-            #         print('no check button')
+                driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
+                print('capcha iframe found by xpath')
+                sleep(random.randint(3,5))
+                try:
+                    driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
+                    print('box xpath')
+                except:
+                    print('no check button')
 
-            # except:
+            except:
                 
-            #     print('------No captcha ------')
-            # Using proxies with authentication to make an HTTP request
-           
-            
+                print('------No captcha ------')
             driver.implicitly_wait(5)
-            sleep(random.randint(3,5))
+        #    sleep(random.randint(3,5))
             try:
                 driver.find_element(By.CLASS_NAME,'card__close').click()
                 print('1st close button by class')
@@ -179,19 +148,14 @@ def main():
             driver.delete_all_cookies()
             driver.quit()
         
-        except:
-            driver.quit()
-            print('Some error occured so we do next iteration')
-            continue
+        except Exception as e:
+            print('Error occurred:', str(e))
+            if 'driver' in locals():
+                driver.quit()
 
-
-# thread = 5
-
-if __name__=='__main__':
-    # proxy_list = load_proxies("proxies.txt")  # Path to your proxy file
+if __name__ == '__main__':
     processes = []
-    # main()
-    for _ in range(1):  # Adjust number of processes as needed
+    for _ in range(2):  # number of parallel processes
         process = Process(target=main)
         processes.append(process)
         process.start()

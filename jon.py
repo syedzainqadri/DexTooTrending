@@ -1,98 +1,59 @@
-
 from selenium import webdriver
-from time import sleep
 from selenium.webdriver.common.by import By
-# from selenium.webdriver.common.keys import Keys
-import random
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service as FirefoxService
-# from webdriver_manager.firefox import GeckoDriverManager
 from multiprocessing import Process
 import time
-import requests
-
-
-
-
-
-def load_proxies(file_path):
-    """ Load the list of proxies from a given file. """
-    with open(file_path, 'r') as file:
-        proxies = [line.strip() for line in file if line.strip()]
-    random.shuffle(proxies)  # Shuffle to randomize the order initially
-    return proxies
-
+import random
 
 def check_ip(driver):
     """Function to fetch and print the current IP using the driver instance."""
     driver.get("https://api.ipify.org")
     ip = driver.find_element(By.TAG_NAME, "body").text
     print("Current IP:", ip)
-
+    return ip
 
 def setup_driver(proxy_url):
     """Setup Firefox WebDriver with the specified proxy settings."""
     firefox_options = Options()
-    firefox_options.add_argument('--headless')  # Enable headless mode for automation
+    # firefox_options.add_argument('--headless')  # Enable headless mode for automation
     firefox_options.add_argument(f'--proxy-server=http://{proxy_url}')
-    # service = FirefoxService(executable_path=GeckoDriverManager().install())
     driver = webdriver.Firefox(options=firefox_options)
     return driver
 
 def main():
     iteration = 0
-    while True:
+    while iteration < 100:
         try:
-            if iteration>=100:
-                print('-----limit completed----')
-                break
-            print("[+] Dextools Bot Starting")
-            # proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Replace with your details
-            # proxy_url = proxies.pop()
-            proxy_url=requests.get(
-                 "https://ipv4.webshare.io/",
-                    proxies={
-                     "http": "http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80/",
-                     "https": "http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80/"
-                            }
-                    ).text
-            print("proxy is:",proxy_url)
+            print("[+] Dextools Bot Starting, iteration:", iteration)
+
+            proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Assuming each new session gets a new IP
             driver = setup_driver(proxy_url)
-            
-            
+
+            current_ip = check_ip(driver)  # Check current IP
             url = "https://www.dextools.io/app/en/solana/pair-explorer/A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
             driver.get(url)
             driver.implicitly_wait(30)
             print("[+] Go to Dextools")
-            # check_ip(driver)
-            # sleep(5)
+            # Additional web interactions...
 
-            # try:
-                
-            #     driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-            #     print('capcha iframe found by xpath')
-            #     sleep(random.randint(3,5))
-            #     try:
-            #         driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
-            #         print('box xpath')
-            #     except:
-            #         print('no check button')
+            # Here you would open a new tab with new proxy
+            driver.quit()  # Close the current driver
+            driver = setup_driver(proxy_url)  # Setup a new driver which should fetch a new proxy IP
+            new_ip = check_ip(driver)  # Check IP in the new driver
+            if new_ip == current_ip:
+                print("Proxy IP did not rotate as expected.")
+            else:
+                print("New proxy IP assigned:", new_ip)
 
-            # except:
-                
-            #     print('------No captcha ------')
-            # Using proxies with authentication to make an HTTP request
-           
-            
-            driver.implicitly_wait(5)
-            sleep(random.randint(3,5))
+            # Additional actions in the new tab...
             try:
                 driver.find_element(By.CLASS_NAME,'card__close').click()
                 print('1st close button by class')
             except:
                 # driver.find_element(By.CSS_SELECTOR,'svg[data-icon="xmark"]').click()
                 print('by selector')
-            sleep(random.randint(2,5))
+            time.sleep(random.randint(2,5))
             driver.implicitly_wait(5)
             try:
                 driver.execute_script("document.querySelector('.close').click();")
@@ -105,13 +66,13 @@ def main():
                 driver.implicitly_wait(5)
                 driver.find_element(By.CSS_SELECTOR,'button[data-event-name="add - Fav: A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"]').click()
                 print('fav button clicked')
-                sleep(2)
+                time.sleep(2)
             except Exception as e:
                 print('no fav button',e)
                 
             main_window = driver.current_window_handle
             print('get the main window',main_window)
-            sleep(3)
+            time.sleep(3)
             driver.implicitly_wait(5)
             shareBtn = driver.find_element(By.CSS_SELECTOR,'a[class="shared-button ng-tns-c567420296-2 ng-star-inserted"]')
 
@@ -126,17 +87,17 @@ def main():
                         print('clicking on the link:',link)
                         link.click()
                         print('clicked')
-                        sleep(3)
+                        time.sleep(3)
                         new_window = driver.window_handles[1]
                         print('get the new window')
                         driver.switch_to.window(new_window)
                         print('switched to new window')
-                        sleep(3)
+                        time.sleep(3)
                         driver.close()
                         print('new window closes')
                         driver.switch_to.window(main_window)
                         print('back to new window')
-                        sleep(2)
+                        time.sleep(2)
                     except:
                         print('error in loading the url')
             except:
@@ -147,7 +108,7 @@ def main():
                 driver.implicitly_wait(5)
                 driver.find_element(By.CSS_SELECTOR,'button[class="close"]').click()
                 print('mondel window closed')
-                sleep(3)
+                time.sleep(3)
             except Exception as e:
                 print('error in closing model window')
                 pass
@@ -162,7 +123,7 @@ def main():
                 driver.execute_script("window.scrollTo(0, {screen_height}*{i});".format(screen_height=screen_height, i=i))
                 print(f'scrloing {i} time')
                 i += 1
-                sleep(3)
+                time.sleep(3)
                 # update scroll height each time after scrolled, as the scroll height can change after we scrolled the page
                 scroll_height = driver.execute_script("return document.body.scrollHeight;") 
                 print(f'setting the now height:',screen_height) 
@@ -172,26 +133,18 @@ def main():
                     break
 
 
-
-            iteration+=1
-            time.sleep(2)
-            print('-------complete--------')
+            iteration += 1
             driver.delete_all_cookies()
             driver.quit()
         
-        except:
-            driver.quit()
-            print('Some error occured so we do next iteration')
-            continue
+        except Exception as e:
+            print('Error occurred:', str(e))
+            if 'driver' in locals():
+                driver.quit()
 
-
-# thread = 5
-
-if __name__=='__main__':
-    # proxy_list = load_proxies("proxies.txt")  # Path to your proxy file
+if __name__ == '__main__':
     processes = []
-    # main()
-    for _ in range(1):  # Adjust number of processes as needed
+    for _ in range(5):  # number of parallel processes
         process = Process(target=main)
         processes.append(process)
         process.start()
