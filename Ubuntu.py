@@ -29,13 +29,13 @@ def main():
             proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Replace with your details
             
             firefox_options = Options()
-            # firefox_options.add_argument('--headless')  # Run Firefox in headless mode
+            firefox_options.add_argument('--headless')  # Run Firefox in headless mode
             firefox_options.add_argument(f'--proxy-server=http://{proxy_url}')
 
             driver = webdriver.Firefox(options=firefox_options)
             print('running with following proxy:',myProxy,iteration)
 
-            # check_ip(driver)
+            check_ip(driver)
             
             url = "https://www.dextools.io/app/en/solana/pair-explorer/A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
             driver.get(url)
@@ -162,9 +162,10 @@ def main():
 thread = 2
 
 if __name__=='__main__':
-    for _ in range(thread):
-        process_obj = Process(target=main)
-        process_obj.start()
+    main()
+    # for _ in range(thread):
+    #     process_obj = Process(target=main)
+    #     process_obj.start()
 
-    for __ in range(thread):
-        process_obj.join()
+    # for __ in range(thread):
+    #     process_obj.join()
