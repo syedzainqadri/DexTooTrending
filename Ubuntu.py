@@ -11,10 +11,6 @@ from multiprocessing import Process
 import time
 import requests
 
-
-
-
-
 def load_proxies(file_path):
     """ Load the list of proxies from a given file. """
     with open(file_path, 'r') as file:
@@ -64,26 +60,7 @@ def main():
             driver.get(url)
             driver.implicitly_wait(30)
             print("[+] Go to Dextools")
-            # check_ip(driver)
-            # sleep(5)
-
-            # try:
-                
-            #     driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-            #     print('capcha iframe found by xpath')
-            #     sleep(random.randint(3,5))
-            #     try:
-            #         driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
-            #         print('box xpath')
-            #     except:
-            #         print('no check button')
-
-            # except:
-                
-            #     print('------No captcha ------')
-            # Using proxies with authentication to make an HTTP request
-           
-            
+            check_ip(driver)            
             driver.implicitly_wait(5)
             sleep(random.randint(3,5))
             try:
@@ -185,13 +162,13 @@ def main():
             continue
 
 
-# thread = 5
+thread = 1
 
 if __name__=='__main__':
     # proxy_list = load_proxies("proxies.txt")  # Path to your proxy file
     processes = []
     # main()
-    for _ in range(1):  # Adjust number of processes as needed
+    for _ in range(thread):  # Adjust number of processes as needed
         process = Process(target=main)
         processes.append(process)
         process.start()
