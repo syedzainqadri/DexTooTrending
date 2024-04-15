@@ -29,7 +29,7 @@ def check_ip(driver):
 def setup_driver(proxy_url):
     """Setup Firefox WebDriver with the specified proxy settings."""
     firefox_options = Options()
-    firefox_options.add_argument('--headless')  # Enable headless mode for automation
+    # firefox_options.add_argument('--headless')  # Enable headless mode for automation
     firefox_options.add_argument(f'--proxy-server=http://{proxy_url}')
     # service = FirefoxService(executable_path=GeckoDriverManager().install())
     driver = webdriver.Firefox(options=firefox_options)
