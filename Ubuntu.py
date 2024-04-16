@@ -1,12 +1,15 @@
 
-from selenium import webdriver
+from seleniumwire import webdriver
 from time import sleep
 from selenium.webdriver.common.by import By
 # from selenium.webdriver.common.keys import Keys
 import random
-from selenium.webdriver.firefox.options import Options
+# from selenium.webdriver.firefox.options import Options
 from multiprocessing import Process
 import time
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 def check_ip(driver, url="https://api.ipify.org"):
     driver.get(url)
@@ -28,12 +31,18 @@ def main():
 
             proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Replace with your details
             
-            firefox_options = Options()
-            # firefox_options.add_argument('--headless')  # Run Firefox in headless mode
-            firefox_options.add_argument(f'--proxy-server=http://{proxy_url}')
+            # firefox_options = Options()
+            # # firefox_options.add_argument('--headless')  # Run Firefox in headless mode
+            # firefox_options.add_argument(f'--proxy-server=http://{proxy_url}')
+            options = {
+ 'proxy':{
+  'http':'http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80'
+ }
+}
 
-            driver = webdriver.Firefox(options=firefox_options)
+            driver = webdriver.Firefox(seleniumwire_options=options)
             print('running with following proxy:',myProxy,iteration)
+            wait = WebDriverWait(driver, 20)
 
             check_ip(driver)
 
@@ -43,38 +52,54 @@ def main():
 
             driver.get('https://www.dextools.io/app/en/solana')
             print("[+] Go to Dextools")
-            driver.implicitly_wait(30)
+            # driver.implicitly_wait(30)
+            sleep(10)
             
             try:
-                
+                driver.find_element(By.CLASS_NAME,'card__close')
+                print('------No captcha ------')
+
+            except:
+                sleep(5)
                 driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
                 print('capcha iframe found by xpath')
                 sleep(random.randint(3,5))
                 try:
                     driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
                     print('box xpath')
+                    
                 except:
                     print('no check button')
-
-            except:
-                    print('------No captcha ------')
             
-            driver.implicitly_wait(5)
-            sleep(random.randint(1,3))
+            # driver.implicitly_wait(5)
+            sleep(random.randint(10,15))
+            # while True:
+
+            #     try:
+            #         # wait.until(EC.element_to_be_clickable(By.CLASS_NAME,'card__close'))
+            #         search_input = driver.find_element(By.CSS_SELECTOR,'div[class="search-container ng-tns-c2047943673-5"]')
+            #         print('out of loop')
+            #         break
+                    
+            #     except:
+            #         try:
+            #             driver.find_element(By.CLASS_NAME,'card__close').click()
+            #             print('close button by class')
+            #             sleep(2)
+            #         except:
+            #             driver.execute_script("document.querySelector('.close').click();")
+            #             print('close by script')
+                        
+            #         continue
+            sleep(random.randint(8,10))
             try:
+                wait.until(EC.element_to_be_clickable(By.CLASS_NAME,'card__close'))
                 driver.find_element(By.CLASS_NAME,'card__close').click()
                 print('1st close button by class')
             except:
-                # driver.find_element(By.CSS_SELECTOR,'svg[data-icon="xmark"]').click()
-                print('by selector')
-            sleep(random.randint(2,5))
-            try:
-                driver.find_element(By.CLASS_NAME,'card__close').click()
-                print('1st close button by class')
-            except:
-                # driver.find_element(By.CSS_SELECTOR,'svg[data-icon="xmark"]').click()
+                
                 print('no extra close')
-            driver.implicitly_wait(5)
+            # driver.implicitly_wait(5)
 
             try:
                 driver.execute_script("document.querySelector('.close').click();")
@@ -83,7 +108,7 @@ def main():
                 print('noting 2nd found')
 
 
-            sleep(5)
+            sleep(random.randint(8,15))
             try:
                 search_input = driver.find_element(By.CSS_SELECTOR,'div[class="search-container ng-tns-c2047943673-5"]')
                 search_input.click()
@@ -168,9 +193,9 @@ def main():
             print('get the screen height',screen_height)
             i = 1
                 # scroll one screen height each time
-            scrol_numb= 3
+            scrol_numb= random.randint(2,3)
             while True:
-                driver.implicitly_wait(5)
+                driver.implicitly_wait(5)   
                 driver.execute_script("window.scrollTo(0, {screen_height}*{i});".format(screen_height=screen_height, i=i))
                 print(f'scrloing {i} time')
                 i += 1
@@ -188,7 +213,7 @@ def main():
             iteration+=1
             time.sleep(2)
             print('-------complete--------')
-            driver.delete_all_cookies()
+            # driver.delete_all_cookies()
             
         
         except:
