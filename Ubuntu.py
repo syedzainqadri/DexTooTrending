@@ -38,7 +38,7 @@ def main():
             }        
             driver = webdriver.Firefox(seleniumwire_options=options)  
 
-            check_ip(driver)
+            # check_ip(driver)
 
             url = "A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
 
@@ -46,6 +46,7 @@ def main():
 
             driver.get('https://www.dextools.io/app/en/solana')
             print("[+] Go to Dextools")
+            sleep(5)
             driver.implicitly_wait(30)
             
             try:
@@ -61,15 +62,30 @@ def main():
 
             except:
                     print('------No captcha ------')
+                    driver.get('https://www.dextools.io/app/en/solana')
+                    print('run again')
             
             driver.implicitly_wait(5)
-            sleep(random.randint(1,3))
+            sleep(6)
             try:
                 driver.find_element(By.CLASS_NAME,'card__close').click()
                 print('1st close button by class')
             except:
                 print('no close button found')
             sleep(random.randint(2,5))
+            try:
+                driver.find_element(By.CLASS_NAME,'card__close').click()
+                print('1st close button by class')
+            except:
+                
+                print('no extra close')
+            driver.implicitly_wait(5)
+
+            try:
+                driver.execute_script("document.querySelector('.close').click();")
+                print('2nd close button close')
+            except:
+                print('noting 2nd found')
             try:
                 driver.find_element(By.CLASS_NAME,'card__close').click()
                 print('1st close button by class')
