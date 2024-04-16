@@ -332,6 +332,7 @@ def check_captcha(driver):
                 if element!=None:
                     print('capcha iframe found by xpath')
                     sleep(random.randint(3,5))
+                    driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
                     driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
                 sleep(random.randint(3,5))
                 captcha = True
