@@ -7,6 +7,8 @@ import random
 from selenium.webdriver.firefox.options import Options
 from multiprocessing import Process
 import time
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 
@@ -163,9 +165,17 @@ def actions_noCaptcha(driver,url):
 
 
 def actions(driver,url):
-            driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
-            print('box xpath')
+            print('resolving captcha...')
             sleep(6)
+            
+           # Assuming the driver is already navigating to the correct page
+            try:
+                # Wait until the element is clickable
+                driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
+                print("Checkbox clicked successfully")
+            except Exception as e:
+                print("Error clicking the checkbox:", e)
+            print('box xpath')
             driver.implicitly_wait(5)
             try:
                 driver.find_element(By.CLASS_NAME,'card__close').click()
@@ -302,7 +312,8 @@ def actions(driver,url):
                     break
 
 
-
+# Verify you are human by completing the action below.
+# id="challenge-running"
             iteration+=1
             time.sleep(2)
             print('-------complete--------')
@@ -315,14 +326,17 @@ def restart(driver):
 
 def check_captcha(driver):
             try: 
-                driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-                print('capcha iframe found by xpath')
+                # driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
+                element = driver.find_element(By.ID, "challenge-running")
+                print(element)
+                if element!=None:
+                    print('capcha iframe found by xpath')
+                    sleep(random.randint(3,5))
+                    driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
                 sleep(random.randint(3,5))
-                captcha = False
+                captcha = True
             except:
                 print('------No captcha ------')
-                # driver.get('https://www.dextools.io/app/en/solana')
-                # print('run again') 
                 captcha = False
             return captcha           
 
@@ -348,20 +362,18 @@ def main():
             # check_ip(driver)
             url = "A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
             driver.get('https://www.dextools.io/app/en/solana')
+            sleep(10)
+            driver.implicitly_wait(10)
+            check_captcha(driver)
             sleep(5)
-            _captcha = check_captcha(driver)
-            print("here")
-            print(_captcha)
+            # if _captcha!= True: 
             print("[+] Go to Dextools")
-            sleep(5)
-            driver.implicitly_wait(30)
-            if _captcha!= True: 
-                actions(driver,url)
-                restart(driver)
-            else:
-                actions_noCaptcha(driver,url)
-                restart(driver)
-            # driver.delete_all_cookies()
+            actions_noCaptcha(driver,url)
+            restart(driver)
+            # else:
+            #     print("[+] Go to Dextools with captcha")
+            #     actions(driver,url)
+            #     restart(driver)
         except:
             restart(driver)
             continue
