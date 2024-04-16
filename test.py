@@ -60,7 +60,7 @@ def actions(driver,url):
     
     #---------searching the tokkten-------------
 
-    WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="search-container ng-tns-c2047943673-5"]')))
+    WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="search-container ng-tns-c2047943673-5"]')))
     search_input = driver.find_element(By.CSS_SELECTOR,'div[class="search-container ng-tns-c2047943673-5"]')
     search_input.click()
     print('-----search input clicked-----')
@@ -68,15 +68,15 @@ def actions(driver,url):
     search_input = driver.switch_to.active_element
     search_input.send_keys(url)
     sleep(3)
-    link = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.results-container li a')))
+    link = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.results-container li a')))
     driver.execute_script("document.querySelectorAll('.results-container li a')[0].click();")
-    print('old method')
+    print('cllicked on the 1st searched tokken')
     
     sleep(3)
 
     # --------- adding to fav by clicking star
     
-    WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button[data-event-name="add - Fav: A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"]')))
+    WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button[data-event-name="add - Fav: A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"]')))
     driver.find_element(By.CSS_SELECTOR,'button[data-event-name="add - Fav: A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"]').click()
     print('fav button clicked')
     sleep(2)
@@ -86,7 +86,7 @@ def actions(driver,url):
         main_window = driver.current_window_handle
         print('get the main window',main_window)
         
-        WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'shared-button')))
+        WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CLASS_NAME,'shared-button')))
         shareBtn = driver.find_element(By.CLASS_NAME,'shared-button')
         shareBtn.click()
 
@@ -119,7 +119,7 @@ def actions(driver,url):
 
         try:
             
-            WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)')))
+            WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)')))
             driver.find_element(By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)').click()
             print('mondel window closed')
             sleep(3)
@@ -323,6 +323,9 @@ def restart(driver):
 
 def check_captcha(driver):
             try: 
+                WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.ID, 'challenge-running')))
+                clng = driver.find_element(By.ID,'challenge-running')
+                print(clng.text)
                 # driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
                 element = WebDriverWait(driver,30).until(EC.visibility_of_element_located((By.ID, "challenge-running")))
                 # element = driver.find_element(By.ID, "challenge-running")
@@ -361,19 +364,17 @@ def main():
             # check_ip(driver)
             url = "A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
             driver.get('https://www.dextools.io/app/en/solana')
+            print("[+] Go to Dextools")
             sleep(10)
             driver.implicitly_wait(10)
             check_captcha(driver)
             sleep(5)
-            # if _captcha!= True: 
-            print("[+] Go to Dextools")
+             
             actions(driver,url)
             # restart(driver)
-            # else:
-            #     print("[+] Go to Dextools with captcha")
-            #     actions(driver,url)
-            #     restart(driver)
-        except:
+            
+        except Exception as e:
+            print(e)
             restart(driver)
             continue
 
