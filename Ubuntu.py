@@ -7,8 +7,8 @@ import random
 from selenium.webdriver.firefox.options import Options
 from multiprocessing import Process
 import time
-
-
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 def check_ip(driver, url="https://api.ipify.org"):
