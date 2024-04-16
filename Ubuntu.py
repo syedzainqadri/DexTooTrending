@@ -8,65 +8,17 @@ from selenium.webdriver.firefox.options import Options
 from multiprocessing import Process
 import time
 
+
+
+
 def check_ip(driver, url="https://api.ipify.org"):
     driver.get(url)
     ip = driver.find_element(By.TAG_NAME,"body").text
     print("Current IP:", ip)
 
-def main():
-
-    iteration = 0
-    while True:
-        try:
-            if iteration>=20:
-                print('-----limit completed----')
-                break
-            
-            
-            print("[+] Dextools Bot Starting")
-
-            myProxy = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"
-
-            proxy_url = "shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80"  # Replace with your details
-            
-            
-            
-            options = {
-             'proxy':{
-              'http':'http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80'
-             }
-            }        
-            driver = webdriver.Firefox(seleniumwire_options=options)  
-
-            # check_ip(driver)
-
-            url = "A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
-
-
-
-            driver.get('https://www.dextools.io/app/en/solana')
-            print("[+] Go to Dextools")
-            sleep(5)
-            driver.implicitly_wait(30)
-            
-            try:
-                
-                driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-                print('capcha iframe found by xpath')
-                sleep(random.randint(3,5))
-                try:
-                    driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
-                    print('box xpath')
-                except:
-                    print('no check button')
-
-            except:
-                    print('------No captcha ------')
-                    driver.get('https://www.dextools.io/app/en/solana')
-                    print('run again')
-            
-            driver.implicitly_wait(5)
+def actions(driver,url):
             sleep(6)
+            driver.implicitly_wait(5)
             try:
                 driver.find_element(By.CLASS_NAME,'card__close').click()
                 print('1st close button by class')
@@ -206,13 +158,65 @@ def main():
             iteration+=1
             time.sleep(2)
             print('-------complete--------')
-            # driver.delete_all_cookies()
-            
-        
-        except:
+            # Funtion end
+
+def restart(driver):
             driver.delete_all_cookies()
             driver.quit()
             print('Some error occured so we do next iteration')
+
+def check_captcha(driver):
+            try: 
+                # driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
+                # print('capcha iframe found by xpath')
+                # sleep(random.randint(3,5))
+
+                # driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
+                # print('box xpath')
+                captcha = False
+            except:
+                # print('------No captcha ------')
+                # driver.get('https://www.dextools.io/app/en/solana')
+                # print('run again') 
+                captcha = False
+            return captcha           
+
+
+def main():
+    iteration = 0
+    while True:
+        try:
+            if iteration>=20:
+                print('-----limit completed----')
+                break
+            
+            
+            print("[+] Dextools Bot Starting")
+            
+            options = {
+             'proxy':{
+              'http':'http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80'
+             }
+            }        
+            driver = webdriver.Firefox(seleniumwire_options=options)  
+
+            # check_ip(driver)
+
+            url = "A6k5YJk3ALuSMrZjLdSz41HRhzMk4v7w8TRCX6LXiKcZ"
+            driver.get('https://www.dextools.io/app/en/solana')
+            print("[+] Go to Dextools")
+            sleep(5)
+            driver.implicitly_wait(30)
+            _captcha = check_captcha(driver)
+            if _captcha!= True: 
+                actions(driver,url)
+                restart(driver)
+            else:
+                actions(driver,url)
+                restart(driver)
+            # driver.delete_all_cookies()
+        except:
+            restart(driver)
             continue
 
 
