@@ -27,7 +27,7 @@ def create_proxy_extension(proxy_host, proxy_port, proxy_username, proxy_passwor
     manifest_json = """
     {
         "version": "1.0.0",
-        "manifest_version": 3,
+        "manifest_version": 2,
         "name": "Chrome Proxy",
         "permissions": [
             "proxy",
@@ -128,7 +128,6 @@ def check_captcha(driver):
   print('------No captcha ------')
 
 
-
 def actions(driver,url):
  try:
     search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.custom-1qxok6w')))
@@ -217,28 +216,17 @@ def actions(driver,url):
    print('url error',e)  
 
 
-def handle_proxy_auth(driver, username, password):
-    try:
-        # Switch to the alert
-        WebDriverWait(driver, 10).until(EC.alert_is_present(),
-                                        'Timed out waiting for PA creation ' +
-                                        'confirmation popup to appear.')
-
-        alert = driver.switch_to.alert
-        alert.send_keys(username + Keys.TAB + password)
-        alert.accept()
-        print("Alert accepted")
-    except NoAlertPresentException:
-        print("No alert present")
-    except Exception as e:
-        print("Error in handling alert:", e)
-
-
 def main():
-    PROXY_HOST = 'p.webshare.io'
-    PROXY_PORT = '80'  # Looks like the port and password might be swapped in your configuration
-    PROXY_USER = 'shnuqnvu-rotate'
-    PROXY_PASS = 'mg5i9hbxda5c'
+    # PROXY_HOST = 'p.webshare.io'
+    # PROXY_PORT = '80'  # Looks like the port and password might be swapped in your configuration
+    # PROXY_USER = 'shnuqnvu-rotate'
+    # PROXY_PASS = 'mg5i9hbxda5c'
+
+    PROXY_HOST = 'gate.smartproxy.com'
+    PROXY_PORT = '10001'  # Looks like the port and password might be swapped in your configuration
+    PROXY_USER = 'spmpe7lz95'
+    PROXY_PASS = 'nRk0lj+gdN9U5Re3lx'
+
     THREAD_COUNT = 1
     iteration = 0
     driver = None  # Initialize driver to None to handle exceptions properly
@@ -252,14 +240,14 @@ def main():
             
             driver = create_driver(PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS)
             driver.get('https://dexscreener.com/')
-            handle_proxy_auth(driver, PROXY_USER, PROXY_PASS)
+            
 
             url = 'a6k5yjk3alusmrzjldsz41hrhzmk4v7w8trcx6lxikcz'
             print("[+] Go to Dextools")
             sleep(10)
             check_captcha(driver)
-            driver.implicitly_wait(10)
             sleep(5)
+            driver.implicitly_wait(10)
              
             actions(driver, url)
             print('------DONE-------')
@@ -276,11 +264,12 @@ def main():
 
 
 if __name__ == '__main__':
-    processes = []
-    for _ in range(1):
-        process = Process(target=main)
-        process.start()
-        processes.append(process)
+   main()
+    # processes = []
+    # for _ in range(1):
+    #     process = Process(target=main)
+    #     process.start()
+    #     processes.append(process)
 
-    for process in processes:
-        process.join()
+    # for process in processes:
+    #     process.join()
