@@ -32,14 +32,15 @@ def check_captcha(driver):
   clng = driver.find_element(By.ID,'challenge-running')
   print(clng.text)
   # driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-  element = WebDriverWait(driver,40).until(EC.visibility_of_element_located((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
-  # element = driver.find_element(By.ID, "challenge-running")
+#   element = WebDriverWait(driver,40).until(EC.visibility_of_element_located((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
+  element = driver.find_element(By.ID, "challenge-running")
   
   print(element)
   if element!=None:
    print('capcha iframe found by xpath')
    sleep(random.randint(3,5))
    driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
+   WebDriverWait(driver,30).until(EC.visibility_of_element_located((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
    driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
   sleep(random.randint(3,5))
      
@@ -91,11 +92,11 @@ def actions(driver,url):
  wish_btn = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="chakra-menu__group"]')))
  wish_btn.click()
  print('added to wishlist')
- sleep(1)
+ sleep(3)
  trade_btn = driver.find_element(By.CSS_SELECTOR,'div[class="chakra-stack custom-1ievikz"]')      
  trade_btn.click()
  print('trade btn clicked')
- sleep(5)
+ sleep(8)
  WebDriverWait(driver,30).until(EC.visibility_of_element_located((By.CSS_SELECTOR,'div[class="h-full flex flex-col items-center justify-center pb-4"]')))
  print('trade pop up loaded')
  sleep(2)
@@ -135,10 +136,6 @@ def actions(driver,url):
   except Exception as e:
    print('url error',e)  
 
- 
-
-
- 
 
 
 def main():
