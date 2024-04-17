@@ -19,7 +19,10 @@ def check_ip(driver, url="https://api.ipify.org"):
 
 
 def restart(driver):
- driver.delete_all_cookies()
+ try:
+    driver.delete_all_cookies()
+ except:
+    print('no cookies')
  driver.quit()
  print('Some error occured so we do next iteration')
 
@@ -29,8 +32,9 @@ def check_captcha(driver):
   clng = driver.find_element(By.ID,'challenge-running')
   print(clng.text)
   # driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-  element = WebDriverWait(driver,30).until(EC.visibility_of_element_located((By.ID, "challenge-running")))
+  element = WebDriverWait(driver,40).until(EC.visibility_of_element_located((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
   # element = driver.find_element(By.ID, "challenge-running")
+  
   print(element)
   if element!=None:
    print('capcha iframe found by xpath')
@@ -166,8 +170,8 @@ def main():
              
             actions(driver,url)
             print('------DONE-------')
-            # restart(driver)
-            driver.delete_all_cookies()
+            restart(driver)
+            
             
         except Exception as e:
             print("Error so we move to next iteration",e)
