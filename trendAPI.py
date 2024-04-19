@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from hdLessDexScn import run_bot
 
 app = Flask(__name__)
 
@@ -15,6 +16,8 @@ def generate_url():
         return jsonify({'error': "Both 'blockchain' and 'pairAddress' parameters are required."}), 400
 
     # Construct the URL with the provided parameters
+    print(dexType,pairAddress)
+    run_bot(dexUrl=dexType,token_pair=pairAddress)
     generated_url = f'https://{dexType}/{pairAddress}'
 
     # Send the generated URL back as a response
