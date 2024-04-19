@@ -183,7 +183,7 @@ def run_bot(dexUrl,token_pair):
             print("[+] Dextools Bot Starting")
                         
             options = Options()
-            # options.add_argument("--headless")  # This line sets the headless mode
+            options.add_argument("--headless")  # This line sets the headless mode
             options.add_argument("--no-sandbox")
             options.add_argument("--disable-gpu")
             options.add_argument("--disable-dev-shm-usage")
