@@ -11,13 +11,11 @@ import random
 from selenium.webdriver.firefox.options import Options
 from multiprocessing import Process
 
-# import logging
+
 import json
 from datetime import datetime
 
-# # Configure logging
-# logging.basicConfig(level=logging.INFO, filename='automation_logs.json', filemode='a',
-#                     format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 def log_to_json(message, level='info'):
     log_entry = {
@@ -26,7 +24,7 @@ def log_to_json(message, level='info'):
         'timestamp': datetime.now().isoformat()
     }
     with open('automation_logs.json', 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
+        f.write(json.dumps(log_entry) + ',\n')
 
 
 
@@ -53,7 +51,7 @@ def check_captcha(driver):
 #   element = WebDriverWait(driver,40).until(EC.visibility_of_element_located((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
   element = driver.find_element(By.ID, "challenge-running")
   
-  # log_to_json(element)
+#   log_to_json(str(element))
   if element!=None:
    sleep(random.randint(3,5))
    driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
@@ -125,7 +123,7 @@ def actions(driver,url):
  log_to_json('pop up closed')
  main_window = driver.current_window_handle
  log_to_json('get the main window',main_window)
- # driver.execute_script("window.scrollTo(0, window.screen.height)")
+ 
  try:
     element = driver.find_element(By.CSS_SELECTOR,'button.custom-pr2mrc:nth-child(1)')
     sleep(3)
@@ -173,18 +171,17 @@ def actions(driver,url):
 
 
 
-def main():
-    iteration = 0
+def run_bot(dexUrl,token_pair):
+    iteration = 1
     while True:
         try:
-            if iteration>=20:
+            if iteration>=2000:
                 log_to_json('-----limit completed----')
                 break
             
-            
+            log_to_json(f'-----------Running Iteration:{str(iteration)}------------')
             log_to_json("[+] Dextools Bot Starting")
-            
-            
+                        
             options = Options()
             options.add_argument("--headless")  # This line sets the headless mode
             options.add_argument("--no-sandbox")
@@ -200,7 +197,7 @@ def main():
             driver = webdriver.Firefox(options=options, seleniumwire_options=proxy_options)  
 
             check_ip(driver)
-            driver.get('https://dexscreener.com/')
+            driver.get(dexUrl)
             url = 'C4ZHt1fPtb6CLcUkivhnnNtxBfxYoJq6x8HEZpUexQvR'
             log_to_json("[+] Go to Dextools")
             sleep(10)
@@ -208,11 +205,12 @@ def main():
             driver.implicitly_wait(10)
             sleep(5)
              
-            actions(driver,url)
+            actions(driver,token_pair)
             log_to_json('------DONE-------')
             restart(driver)
-            # driver.delete_all_cookies()
+            
             log_to_json('-----completed-----')
+            iteration+=1
             
             
         except Exception as e:
@@ -221,9 +219,16 @@ def main():
             
 
 
-thread = 2
+def main():
+   thread = 2
+   token_pair = 'C4ZHt1fPtb6CLcUkivhnnNtxBfxYoJq6x8HEZpUexQvR'
+   dexUrl = 'http://dexscreener.com/'
+   run_bot(dexUrl,token_pair)
+
+
 
 if __name__=='__main__':
+    
     main()
    #  for _ in range(thread):
    #      process_obj = Process(target=main)
