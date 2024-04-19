@@ -53,7 +53,7 @@ def check_captcha(driver):
 #   element = WebDriverWait(driver,40).until(EC.visibility_of_element_located((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
   element = driver.find_element(By.ID, "challenge-running")
   
-  log_to_json(element)
+  # log_to_json(element)
   if element!=None:
    sleep(random.randint(3,5))
    driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
