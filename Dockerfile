@@ -1,30 +1,35 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.8-slim-buster
 
-# Set the working directory to /app
+# Set the working directory in the container
 WORKDIR /app
 
 # Copy the current directory contents into the container at /app
-ADD . /app
+COPY . /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install necessary packages for web browsing and downloading
+# Install wget, curl, unzip, and necessary libraries for Google Chrome
 RUN apt-get update && \
-    apt-get install -y wget firefox-esr
+    apt-get install -y wget gnupg2 curl unzip \
+                       fonts-liberation libappindicator3-1 libasound2 \
+                       libatk-bridge2.0-0 libatk1.0-0 libcups2 \
+                       libdbus-1-3 libgdk-pixbuf2.0-0 libnspr4 libnss3 \
+                       libx11-xcb1 xdg-utils
 
-# Download and install GeckoDriver
-RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.29.0/geckodriver-v0.29.0-linux64.tar.gz && \
-    tar -xvzf geckodriver-v0.29.0-linux64.tar.gz && \
-    chmod +x geckodriver && \
-    mv geckodriver /usr/local/bin/ && \
-    rm geckodriver-v0.29.0-linux64.tar.gz
+# Download and install Google Chrome
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
-# Clean up APT when done
-RUN apt-get purge -y --auto-remove wget && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Install ChromeDriver
+RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+    wget -N "http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip" -P ~/ \
+    && unzip ~/chromedriver_linux64.zip -d ~/ \
+    && rm ~/chromedriver_linux64.zip \
+    && mv -f ~/chromedriver /usr/local/bin/chromedriver \
+    && chown root:root /usr/local/bin/chromedriver \
+    && chmod 0755 /usr/local/bin/chromedriver
 
 # Make port 3000 available to the world outside this container
 EXPOSE 3000
