@@ -39,10 +39,10 @@ deactivate nondestructive
 if [ "${OSTYPE:-}" = "cygwin" ] || [ "${OSTYPE:-}" = "msys" ] ; then
     # transform D:\path\to\venv to /d/path/to/venv on MSYS
     # and to /cygdrive/d/path/to/venv on Cygwin
-    export VIRTUAL_ENV=$(cygpath "c:\Users\HP EliteBook 840 G3\Documents\GitHub\DexTooTrending\venvs\0x47270cA9a3cdF198d26A847B577E9bBDd96a082a")
+    export VIRTUAL_ENV=$(cygpath "c:\Users\HP EliteBook 840 G3\Documents\GitHub\DexTooTrending\venvs\FHjxJM4nU7YHCbwqsmRs5M89m6BG1FygopXsj4vFSRVy")
 else
     # use the path as-is
-    export VIRTUAL_ENV="c:\Users\HP EliteBook 840 G3\Documents\GitHub\DexTooTrending\venvs\0x47270cA9a3cdF198d26A847B577E9bBDd96a082a"
+    export VIRTUAL_ENV="c:\Users\HP EliteBook 840 G3\Documents\GitHub\DexTooTrending\venvs\FHjxJM4nU7YHCbwqsmRs5M89m6BG1FygopXsj4vFSRVy"
 fi
 
 _OLD_VIRTUAL_PATH="$PATH"
@@ -59,9 +59,9 @@ fi
 
 if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT:-}" ] ; then
     _OLD_VIRTUAL_PS1="${PS1:-}"
-    PS1="(0x47270cA9a3cdF198d26A847B577E9bBDd96a082a) ${PS1:-}"
+    PS1="(FHjxJM4nU7YHCbwqsmRs5M89m6BG1FygopXsj4vFSRVy) ${PS1:-}"
     export PS1
-    VIRTUAL_ENV_PROMPT="(0x47270cA9a3cdF198d26A847B577E9bBDd96a082a) "
+    VIRTUAL_ENV_PROMPT="(FHjxJM4nU7YHCbwqsmRs5M89m6BG1FygopXsj4vFSRVy) "
     export VIRTUAL_ENV_PROMPT
 fi
 
