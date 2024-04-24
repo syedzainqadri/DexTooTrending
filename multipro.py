@@ -11,12 +11,12 @@ def create_and_run_bot(dexUrl, pairAddress):
     os.makedirs(env_dir, exist_ok=True)
 
     # Create a virtual environment
-    subprocess.run(["python", "-m", "venv", env_dir])
+    subprocess.run(["python3", "-m", "venv", env_dir])
     
     # Activate the environment and install dependencies
     # Adjust the path to pip and python depending on the OS
-    pip_path = os.path.join(env_dir, "Scripts", "pip")
-    python_path = os.path.join(env_dir, "Scripts", "python")
+    pip_path = os.path.join(env_dir, "bin", "pip")
+    python_path = os.path.join(env_dir, "bin", "python3")
 
     # Install required packages
     print("Python Path:", python_path)
@@ -54,9 +54,9 @@ def generate_url():
         'url': generated_url
     })
 
-# @app.route('/', methods=['GET'])
-# def print_hello_world():
-#     return jsonify({'message': 'hello_world'})
+@app.route('/', methods=['GET'])
+def print_hello_world():
+    return jsonify({'message': 'hello_world'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)
