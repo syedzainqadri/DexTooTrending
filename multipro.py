@@ -2,11 +2,16 @@ import os
 import subprocess
 import threading
 from flask import Flask, request, jsonify
+from datetime import datetime
 
 app = Flask(__name__)
 
 def create_and_run_bot(dexUrl, pairAddress):
     # Unique environment directory
+    # try:
+    # env_dir = f"env_{datetime.now().strftime('%Y%m%D%H%M%S')}+{pairAddress.replace(':', '_')}"  # Sanitize pairAddress to be used in file paths
+    # os.makedirs(env_dir, exist_ok=True)
+    # except:
     env_dir = f"./venvs/{pairAddress.replace(':', '_')}"  # Sanitize pairAddress to be used in file paths
     os.makedirs(env_dir, exist_ok=True)
 
@@ -54,9 +59,9 @@ def generate_url():
         'url': generated_url
     })
 
-# @app.route('/', methods=['GET'])
-# def print_hello_world():
-#     return jsonify({'message': 'hello_world'})
+@app.route('/', methods=['GET'])
+def print_hello_world():
+    return jsonify({'message': 'hello_world'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)

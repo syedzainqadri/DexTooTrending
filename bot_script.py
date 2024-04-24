@@ -1,6 +1,6 @@
 import sys
 from seleniumwire import webdriver
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -26,7 +26,7 @@ def setup_driver(proxy_address):
     }
 
     # Setup WebDriver with options
-    driver = webdriver.Firefox(options=options, seleniumwire_options=seleniumwire_options)
+    driver = webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
     return driver
 
 def log_to_json(message, level='info'):
