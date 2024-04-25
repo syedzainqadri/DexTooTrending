@@ -22,14 +22,13 @@ RUN apt-get update && \
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
     && dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 
-# Install ChromeDriver
-RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
-    wget -N "http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip" -P ~/ \
-    && unzip ~/chromedriver_linux64.zip -d ~/ \
-    && rm ~/chromedriver_linux64.zip \
-    && mv -f ~/chromedriver /usr/local/bin/chromedriver \
-    && chown root:root /usr/local/bin/chromedriver \
-    && chmod 0755 /usr/local/bin/chromedriver
+# Install Firefox
+RUN apt-get update && apt-get install -y wget firefox-esr \
+    && wget https://github.com/mozilla/geckodriver/releases/download/v0.29.0/geckodriver-v0.29.0-linux64.tar.gz \
+    && tar -xvzf geckodriver-v0.29.0-linux64.tar.gz \
+    && chmod +x geckodriver \
+    && mv geckodriver /usr/local/bin/ \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* geckodriver-v0.29.0-linux64.tar.gz
 
 # Make port 3000 available to the world outside this container
 EXPOSE 3000
@@ -38,4 +37,4 @@ EXPOSE 3000
 ENV NAME World
 
 # Run app.py when the container launches
-CMD ["python", "app.py"]
+CMD ["python", "multipro.py"]
