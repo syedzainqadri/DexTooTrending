@@ -18,11 +18,11 @@ def setup_environment(pair_address):
 
 def create_and_run_bot(dex_url, pair_address):
     env_dir = setup_environment(pair_address)
-    subprocess.run(["python3", "-m", "venv", env_dir], check=True)
+    subprocess.run(["python", "-m", "venv", env_dir], check=True)
     
     scripts_dir = "Scripts" if os.name == 'nt' else "bin"
     pip_path = os.path.join(env_dir, scripts_dir, "pip")
-    python_path = os.path.join(env_dir, scripts_dir, "python3")
+    python_path = os.path.join(env_dir, scripts_dir, "python")
 
     # Install dependencies
     print(f"Python Path: {python_path}")
