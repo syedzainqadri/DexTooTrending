@@ -1,6 +1,6 @@
 import sys
 from seleniumwire import webdriver
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -36,10 +36,17 @@ def log_error(message):
 
 def setup_driver(proxy_address):
     options = Options()
-    options.add_argument("--headless")  # Run in headless mode.
+    # options.add_argument("--headless")  # Run in headless mode.
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-dev-shm-usage")
+    if os.name == 'nt':
+       geckodriver_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'geckodriver'))
+       os.environ['PATH'] += ';' + geckodriver_path
+       
+    else:
+       geckodriver_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'geckodriver'))
+       os.environ['PATH'] += os.pathsep + geckodriver_path
     # Proxy setup, adjust as necessary
     seleniumwire_options = {
         'proxy': {
@@ -49,7 +56,7 @@ def setup_driver(proxy_address):
     }
 
     # Setup WebDriver with options
-    driver = webdriver.Chrome(options=options, seleniumwire_options=seleniumwire_options)
+    driver = webdriver.Firefox(options=options, seleniumwire_options=seleniumwire_options)
     return driver
 
 def log_to_json(message, level='info'):
@@ -349,51 +356,51 @@ def dextoolActions(driver,pairAddress):
 
 def run_bot(dexUrl,pairAddress):
     logging.info(f"Starting bot for {dexUrl} with pair {pairAddress}")
-
+    iteration = 1
     proxy_address = 'shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80'
-    try:
-        driver = setup_driver(proxy_address=proxy_address)  
+    while True:
+        try:
+            if iteration>=2000:
+                logging.info('-----limit completed----')
+                break
+            
+            
 
-        # check_ip(driver)
-        driver.get(dexUrl)
-        logging.info("[+] Go to Dextools")
-        sleep(10)
-        check_captcha(driver)
-        driver.implicitly_wait(10)
-        sleep(5)
-        #  check which dex and then use the function acccordingly
-        if dexUrl == 'http://dexscreener.com/':
-            dexscreenerActions(driver,pairAddress)
-        else:
-            dextoolActions(driver,pairAddress) 
-        # actions(driver,token_pair)
-        logging.info('------DONE-------')
-        restart(driver)
-        
-        logging.info('-----completed-----')
-        
-        
-        
-    except Exception as e:
-        logging.error(f"Error so we move to next iteration:{str(e)} ")
-        restart(driver)
+            driver = setup_driver(proxy_address=proxy_address)  
+
+            # check_ip(driver)
+            driver.get(dexUrl)
+            logging.info("[+] Go to Dextools")
+            sleep(10)
+            check_captcha(driver)
+            driver.implicitly_wait(10)
+            sleep(5)
+            #  check which dex and then use the function acccordingly
+            if dexUrl == 'https://dexscreener.com/':
+               dexscreenerActions(driver,pairAddress)
+            else:
+               dextoolActions(driver,pairAddress) 
+            # actions(driver,token_pair)
+            logging.info('------DONE-------')
+            restart(driver)
+            
+            logging.info('-----completed-----')
+            iteration+=1
+            
+            
+        except Exception as e:
+            logging.error(f"Error so we move to next iteration:{str(e)} ")
+            restart(driver)
 
 
 if __name__ == "__main__":
     dexUrl = sys.argv[1]
     pairAddress = sys.argv[2]
     processes = []
-    iteration = 1
-    iteration_limit = 20
-    while True:
-        if iteration>=iteration_limit:
-            print('----limit completed')
-            break
-        for _ in range(1):
-            process_obj = Process(target=run_bot, args=(dexUrl, pairAddress))
-            processes.append(process_obj)
-            process_obj.start()
-            iteration +=1
+    for _ in range(1):
+        process_obj = Process(target=run_bot, args=(dexUrl, pairAddress))
+        processes.append(process_obj)
+        process_obj.start()
 
-        for process in processes:
-            process.join()
+    for process in processes:
+        process.join()

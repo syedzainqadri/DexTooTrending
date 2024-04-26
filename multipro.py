@@ -3,20 +3,25 @@ import subprocess
 import threading
 from flask import Flask, request, jsonify
 from datetime import datetime
-
+import shutil
 app = Flask(__name__)
 
 def sanitize_address(pair_address):
     """Sanitize the pair address to be file system safe."""
-    return pair_address.replace(':', '_')
+    address = str(pair_address.replace(':', '_'))
+    return  address
 
 def setup_environment(pair_address):
     """Set up and return the virtual environment directory."""
-    env_dir = f"./venvs/{sanitize_address(pair_address)}"
+    env_dir = f"./venvs/{pair_address.replace(':', '_')}"
     os.makedirs(env_dir, exist_ok=True)
     return env_dir
 
-def create_and_run_bot(dex_url, pair_address):
+def cleanup_environment(env_dir):
+    """Clean up and remove the virtual environment directory."""
+    shutil.rmtree(env_dir, ignore_errors=True)
+
+def create_and_run_bot(dex_url, pair_address): 
     env_dir = setup_environment(pair_address)
     subprocess.run(["python", "-m", "venv", env_dir], check=True)
     
@@ -33,6 +38,7 @@ def create_and_run_bot(dex_url, pair_address):
     # Execute bot script
     bot_script_path = "bot_script.py"
     subprocess.run([python_path, bot_script_path, dex_url, pair_address], check=True)
+    cleanup_environment(env_dir=env_dir)
 
 def background_task(dex_url, pair_address):
     create_and_run_bot(dex_url, pair_address)
