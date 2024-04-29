@@ -198,7 +198,7 @@ def run_bot(dexUrl,token_pair):
 
             check_ip(driver)
             driver.get(dexUrl)
-            url = 'C4ZHt1fPtb6CLcUkivhnnNtxBfxYoJq6x8HEZpUexQvR'
+            url = 'EB2N7TodBZD1Utqn5h6fnd19WuDHfHXQY6jGjefUSXzo'
             print("[+] Go to Dextools")
             sleep(10)
             check_captcha(driver)
@@ -220,7 +220,7 @@ def run_bot(dexUrl,token_pair):
 
 def multiThread(dexUrl, token_pair):
     processes = []
-    for _ in range(5):
+    for _ in range(10):
         process_obj = Process(target=run_bot, args=(dexUrl, token_pair))
         processes.append(process_obj)
         process_obj.start()
@@ -228,3 +228,4 @@ def multiThread(dexUrl, token_pair):
     for process in processes:
         process.join()
 
+multiThread()

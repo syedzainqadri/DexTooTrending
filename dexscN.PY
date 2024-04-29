@@ -146,19 +146,24 @@ def main():
                 print('-----limit completed----')
                 break
             
+            options = Options()
+            options.add_argument("--headless")  # This line sets the headless mode
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-dev-shm-usage")
             
             print("[+] Dextools Bot Starting")
             
-            options = {
+            sel_options = {
              'proxy':{
               'http':'http://shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80'
              }
             }        
-            driver = webdriver.Firefox(seleniumwire_options=options)  
+            driver = webdriver.Firefox(options=options,seleniumwire_options=sel_options)  
 
             # check_ip(driver)
             driver.get('https://dexscreener.com/')
-            url = 'a6k5yjk3alusmrzjldsz41hrhzmk4v7w8trcx6lxikcz'
+            url = '72fANEbS7akgcZBMWNsSfBwsa5z9kVDUtBqww31FYx8p'
             print("[+] Go to Dextools")
             sleep(10)
             check_captcha(driver)
@@ -176,13 +181,13 @@ def main():
             
 
 
-thread = 2
+thread = 5
 
 if __name__=='__main__':
-    main()
-    # for _ in range(thread):
-    #     process_obj = Process(target=main)
-    #     process_obj.start()
+   #  main()
+    for _ in range(thread):
+        process_obj = Process(target=main)
+        process_obj.start()
 
-    # for __ in range(thread):
-    #     process_obj.join()
+    for __ in range(thread):
+        process_obj.join()
