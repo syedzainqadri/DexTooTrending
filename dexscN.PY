@@ -84,11 +84,9 @@ def actions(driver,url):
  token = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="chakra-stack custom-ktfa8s"]')))
  token.click()
  print('clicked on the token')
- sleep(3)
  fav_btn = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'custom-1rr4qq7')))
  fav_btn.click()
  print('add to wishlist')
- sleep(1)
  wish_btn = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="chakra-menu__group"]')))
  wish_btn.click()
  print('added to wishlist')
@@ -96,7 +94,6 @@ def actions(driver,url):
  trade_btn = driver.find_element(By.CSS_SELECTOR,'div[class="chakra-stack custom-1ievikz"]')      
  trade_btn.click()
  print('trade btn clicked')
- sleep(8)
  WebDriverWait(driver,30).until(EC.visibility_of_element_located((By.CSS_SELECTOR,'div[class="h-full flex flex-col items-center justify-center pb-4"]')))
  print('trade pop up loaded')
  sleep(2)
@@ -181,7 +178,7 @@ def main():
             
 
 
-thread = 5
+thread = 15
 
 if __name__=='__main__':
    #  main()
