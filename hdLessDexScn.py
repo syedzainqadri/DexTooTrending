@@ -66,43 +66,43 @@ def check_captcha(driver):
   log_to_json('------No captcha ------')
 
 def actions(driver,url):
-#  try:
-#     search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button([type="button"]and[class="chakra-button custom-1qxok6w"])')))
-#     search_click.click()
-#     log_to_json('search button clicked selector')
-#  except:
-#     search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')))
-#    #  search_click = driver.find_element(By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')
-#     search_click.click()
-#     log_to_json('search button clicked by xpath')
-#  sleep(2)
-#  try:
-#     srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
-#     srch_input.click()
-#     srch_input.send_keys(url)
-#     log_to_json('token url searched')
-#  except:
-#     try:
-#       #   search_click = driver.find_element(By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')
-#         search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')))
-#         search_click.click()
-#         log_to_json('search button clicked by xpath')
-#         srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
-#         srch_input.click()
-#         srch_input.send_keys(url)
-#         log_to_json('token url searched')
-#     except:
-#         search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.custom-1qxok6w')))
-#         search_click.click()
-#         log_to_json('search button clicked selector')
-#         srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
-#         srch_input.click()
-#         srch_input.send_keys(url)
-#         log_to_json('token url searched')
-#  token = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="chakra-stack custom-ktfa8s"]')))
-#  token.click()
-#  log_to_json('clicked on the token')
-#  sleep(3)
+ try:
+    search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button([type="button"]and[class="chakra-button custom-1qxok6w"])')))
+    search_click.click()
+    log_to_json('search button clicked selector')
+ except:
+    search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')))
+   #  search_click = driver.find_element(By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')
+    search_click.click()
+    log_to_json('search button clicked by xpath')
+ sleep(2)
+ try:
+    srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
+    srch_input.click()
+    srch_input.send_keys(url)
+    log_to_json('token url searched')
+ except:
+    try:
+      #   search_click = driver.find_element(By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')
+        search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')))
+        search_click.click()
+        log_to_json('search button clicked by xpath')
+        srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
+        srch_input.click()
+        srch_input.send_keys(url)
+        log_to_json('token url searched')
+    except:
+        search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.custom-1qxok6w')))
+        search_click.click()
+        log_to_json('search button clicked selector')
+        srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
+        srch_input.click()
+        srch_input.send_keys(url)
+        log_to_json('token url searched')
+ token = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="chakra-stack custom-ktfa8s"]')))
+ token.click()
+ log_to_json('clicked on the token')
+ sleep(3)
  try:
    fav_btn = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'custom-1rr4qq7')))
    fav_btn.click()
@@ -208,8 +208,7 @@ def run_bot(dexUrl,blockChain,token_pair):
             driver = webdriver.Firefox(options=options, seleniumwire_options=proxy_options)  
 
             # check_ip(driver)
-            driver.get("https://dexscreener.com/solana/9flcrjanq8ydwhzmrsbtuuv8t3gniramkvtvyw6vzjry")
-            
+            driver.get(dexUrl)          
             log_to_json("[+] Go to Dextools")
             sleep(10)
             check_captcha(driver)
@@ -232,12 +231,12 @@ def run_bot(dexUrl,blockChain,token_pair):
 
 def main():
    
-   token_pair = '9FLCrJAnq8YDwHZMrSBtUuV8t3GniRAMkvTvyW6VzJrY'
+   token_pair = '0xd8df5e7795652b2cceb6def1390bd724426ff8b8'
    blockChain = 'solana'
    dexUrl = 'http://dexscreener.com/'
    run_bot(dexUrl,blockChain,token_pair)
 
-thread = 2
+thread = 5
 
 if __name__=='__main__':
     
