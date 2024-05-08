@@ -229,12 +229,12 @@ def run_bot(dexUrl,blockChain,token_pair):
 
 def main():
    
-   token_pair = 'FHjxJM4nU7YHCbwqsmRs5M89m6BG1FygopXsj4vFSRVy'
+   token_pair = '0xd8df5e7795652b2cceb6def1390bd724426ff8b8'
    blockChain = 'solana'
    dexUrl = 'http://dexscreener.com/'
    run_bot(dexUrl,blockChain,token_pair)
 
-thread = 3
+thread = 2
 
 if __name__=='__main__':
     
