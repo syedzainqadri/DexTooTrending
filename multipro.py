@@ -43,17 +43,17 @@ def setup_environment(pair_address):
     logging.debug(f'Folder for env: {env_dir}')
     return env_dir
 
+import shutil  # Import shutil for removing directory trees
+
 def create_and_run_bot(dex_url, blockchain, pair_address): 
-    """Sets up environment and runs the bot script in a subprocess."""
+    """Sets up environment, runs the bot script in a subprocess, and cleans up."""
     env_dir = setup_environment(pair_address)
     subprocess.run(["python", "-m", "venv", env_dir], check=True)
     
     scripts_dir = "Scripts" if os.name == 'nt' else "bin"
+    python_os = "python" if os.name == 'nt' else "python3"
     pip_path = os.path.join(env_dir, scripts_dir, "pip")
-    python_path = os.path.join(env_dir, scripts_dir, "python")
-    print(pip_path)
-    print(python_path)
-    # subprocess.run([pip_path, "install", "--upgrade", "pip", "setuptools", "wheel"], check=True)
+    python_path = os.path.join(env_dir, scripts_dir, python_os)
 
     # Install dependencies
     subprocess.run([pip_path, "install", "--upgrade", "pip", "setuptools", "wheel"], check=True)
@@ -61,12 +61,22 @@ def create_and_run_bot(dex_url, blockchain, pair_address):
     
     # Execute bot script in a subprocess
     bot_script_path = "bot_script.py"
+    process = None
     try:
-        subprocess.run([python_path, bot_script_path, dex_url, blockchain, pair_address], check=True)
-        logging.info(f"Bot script {bot_script_path} started successfully.")
+        process = subprocess.Popen([python_path, bot_script_path, dex_url, blockchain, pair_address])
+        process.wait()  # Wait for the subprocess to finish
+        logging.info(f"Bot script {bot_script_path} started and completed successfully.")
     except subprocess.CalledProcessError as e:
         logging.error(f"Subprocess failed with return code {e.returncode}. Output: {e.output}")
         raise
+    finally:
+        if process is not None:
+            # Cleanup: remove virtual environment directory after use
+            try:
+                shutil.rmtree(env_dir)  # This removes the directory and all its contents
+                logging.info(f"Cleaned up virtual environment at {env_dir}")
+            except Exception as e:
+                logging.error(f"Failed to remove virtual environment at {env_dir}: {e}")
 
 def background_task(dex_url, blockchain, pair_address):
     """Background task that runs the bot."""
