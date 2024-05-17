@@ -11,20 +11,27 @@ from datetime import datetime
 import json 
 import os
 import logging
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred)
+db= firestore.client()
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     filename='bot.log',  # You can also direct this to 'app.log' if you want a single log file
                     filemode='a')  
 
-def log_to_json(message, level='info'):
+def log_to_json(message, orderId, pairAddress):
+
     log_entry = {
         'message': message,
-        'level': level.upper(),
+        'level': 'Info',
         'timestamp': datetime.now().isoformat()
     }
-    with open('automation_logs.json', 'a') as f:
-        f.write(json.dumps(log_entry) + ',\n')
+    db.collection('orderIDs').document(orderId).collection(pairAddress).add(log_entry)
 
 
 def setup_driver(proxy_address):
@@ -52,23 +59,23 @@ def setup_driver(proxy_address):
     driver = webdriver.Firefox(options=options, seleniumwire_options=seleniumwire_options)
     return driver
 
-def check_ip(driver, url="https://api.ipify.org"):
+def check_ip(driver, orderId, pairAddress,url="https://api.ipify.org"):
  driver.get(url)
  ip = driver.find_element(By.TAG_NAME,"body").text
- log_to_json(f"Current IP:{ip}")
+ log_to_json(f"Current IP:{ip}", orderId, pairAddress)
 
-def restart(driver):
+def restart(driver,orderId, pairAddress):
  try:
     driver.delete_all_cookies()
  except:
-    log_to_json('no cookies')
+    log_to_json('no cookies',orderId, pairAddress)
  driver.quit()
 
-def check_captcha(driver):
+def check_captcha(driver,orderId, pairAddress):
  try: 
   WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.ID, 'challenge-running')))
   clng = driver.find_element(By.ID,'challenge-running')
-  log_to_json(clng.text)
+  log_to_json(f"{clng.text}",orderId, pairAddress)
 
   element = driver.find_element(By.ID, "challenge-running")
   
@@ -76,17 +83,17 @@ def check_captcha(driver):
   if element!=None:
    sleep(random.randint(3,5))
    driver.switch_to.frame(driver.find_element(By.XPATH,'//iframe[@sandbox="allow-same-origin allow-scripts allow-popups"]'))
-   log_to_json('capcha iframe found')
+   log_to_json('capcha iframe found',orderId, pairAddress)
     #    WebDriverWait(driver,30).until(EC.visibility_of_element_located((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
    WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.XPATH,'//*[@id="challenge-stage"]/div/label')))
    driver.find_element(By.XPATH,'//*[@id="challenge-stage"]/div/label').click()
-   log_to_json('--captch resolved--')
+   log_to_json('--captch resolved--',orderId, pairAddress)
   sleep(random.randint(3,5))
      
  except:
-  log_to_json('------No captcha ------')
+  log_to_json('------No captcha ------',orderId, pairAddress)
 
-def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, startRocket):
+def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, startRocket,orderId):
 
 
 
@@ -96,41 +103,41 @@ def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, st
     try:
         search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.custom-1qxok6w')))
         search_click.click()
-        log_to_json('search button clicked selector')
+        log_to_json('search button clicked selector',orderId=orderId,pairAddress=pairAddress)
     except:
         search_click = driver.find_element(By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')
         search_click.click()
-        log_to_json('search button clicked by xpath')
+        log_to_json('search button clicked by xpath',orderId,pairAddress)
     # sleep(2)
     try:
         srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
         srch_input.click()
         srch_input.send_keys(pairAddress)
-        log_to_json('token url searched')
+        log_to_json('token url searched',orderId,pairAddress)
     except:
         try:
             search_click = driver.find_element(By.XPATH,'/html/body/div[1]/div/nav/div[2]/div/button')
             search_click.click()
-            log_to_json('search button clicked by 2xpath')
+            log_to_json('search button clicked by 2xpath',orderId,pairAddress)
             srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
             srch_input.click()
             srch_input.send_keys(pairAddress)
-            log_to_json('token url searched')
+            log_to_json('token url searched',orderId,pairAddress)
         except:
             search_click = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.custom-1qxok6w')))
             search_click.click()
-            log_to_json('search button clicked selector')
+            log_to_json('search button clicked selector',orderId,pairAddress)
             srch_input = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'chakra-input')))
             srch_input.click()
             srch_input.send_keys(pairAddress)
-            log_to_json('token url searched')
+            log_to_json('token url searched',orderId,pairAddress)
 
         #  clicking on first pairaddress result
 
     try:
         token = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="chakra-stack custom-ktfa8s"]')))
         token.click()
-        log_to_json('clicked on the token')
+        log_to_json('clicked on the token',orderId,pairAddress)
         sleep(3)
     except:
         pass 
@@ -140,11 +147,11 @@ def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, st
     try:
         fav_btn = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'custom-1rr4qq7')))
         fav_btn.click()
-        log_to_json('add to wishlist')
+        log_to_json('add to wishlist',orderId,pairAddress)
         sleep(1)
         wish_btn = WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[class="chakra-menu__group"]')))
         wish_btn.click()
-        log_to_json('added to wishlist')
+        log_to_json('added to wishlist',orderId,pairAddress)
         sleep(3)
     except:
         pass
@@ -154,19 +161,19 @@ def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, st
     try:
         trade_btn = driver.find_element(By.CSS_SELECTOR,'div[class="chakra-stack custom-1ievikz"]')      
         trade_btn.click()
-        log_to_json('trade btn clicked')
+        log_to_json('trade btn clicked',orderId=orderId,pairAddress=pairAddress)
         sleep(3)
         try:
             WebDriverWait(driver,30).until(EC.visibility_of_element_located((By.CSS_SELECTOR,'div[class="h-full flex flex-col items-center justify-center pb-4"]')))
-            log_to_json('trade pop up loaded')
+            log_to_json('trade pop up loaded',orderId=orderId,pairAddress=pairAddress)
         except:
-            log_to_json('no trade loaded')
+            log_to_json('no trade loaded',orderId=orderId,pairAddress=pairAddress)
             pass
         sleep(2) 
         driver.find_element(By.CSS_SELECTOR,'button[class="chakra-button cancel custom-113js0t"][title="Close"]').click()
-        log_to_json('pop up closed')
+        log_to_json('pop up closed',orderId=orderId,pairAddress=pairAddress)
         main_window = driver.current_window_handle
-        log_to_json('get the main window {main_window}')
+        log_to_json('get the main window {main_window}',orderId=orderId,pairAddress=pairAddress)
     except:
         pass
         
@@ -183,16 +190,16 @@ def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, st
                     WebDriverWait(driver,20).until(EC.visibility_of_element_located((By.TAG_NAME,'body')))
                 except:
                     pass
-                log_to_json('move to new tab')
+                log_to_json('move to new tab',orderId=orderId,pairAddress=pairAddress)
                 sleep(5)  
                 #    driver.close()  # Close the current tab
-                log_to_json('new tab closes')
+                log_to_json('new tab closes',orderId=orderId,pairAddress=pairAddress)
                 # Switch back to the remaining tab
                 driver.switch_to.window(handles[0])
-                log_to_json('move to main tab')
+                log_to_json('move to main tab',orderId=orderId,pairAddress=pairAddress)
                 sleep(3)
             except Exception as e:
-                log_to_json(f'url error:{(e)}')  
+                log_to_json(f'url error:{(e)}',orderId=orderId,pairAddress=pairAddress)  
     except:
         pass
         #  clicking on the rocket button 
@@ -202,72 +209,72 @@ def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, st
         try:
             try:
                 likes = int(element.text)
-                log_to_json(f'likes:{str(likes)}')
+                log_to_json(f'likes:{str(likes)}',orderId=orderId,pairAddress=pairAddress)
             except:
                 likes = element.find_element(By.TAG_NAME,'span').text
-                log_to_json(f'likes:{str(likes)}')
+                log_to_json(f'likes:{str(likes)}',orderId=orderId,pairAddress=pairAddress)
             if iteration == 1:
                 startRocket = int(likes)
-                log_to_json(f'initial Rockets are: {startRocket}')
+                log_to_json(f'initial Rockets are: {startRocket}',orderId=orderId,pairAddress=pairAddress)
 
             try:
                 element.click()
                 iteration +=1
                 newlikes  +=1
-                log_to_json(f'rocket clicked:{newlikes}')
+                log_to_json(f'rocket clicked:{newlikes}',orderId=orderId,pairAddress=pairAddress)
                 sleep(3)
             except:
-                log_to_json('clicked already or some error')  
+                log_to_json('clicked already or some error',orderId=orderId,pairAddress=pairAddress)  
 
             if newlikes >= target_Rocket:
-                log_to_json('-----targeted likes completed----')
+                log_to_json('-----targeted likes completed----',orderId=orderId,pairAddress=pairAddress)
                 target = True
             else:
                 target = False
         except:
-            log_to_json('noting found')
+            log_to_json('noting found',orderId=orderId,pairAddress=pairAddress)
         pass
         
     except:
-        log_to_json('not found rockect')
+        log_to_json('not found rockect',orderId=orderId,pairAddress=pairAddress)
     return target , iteration , newlikes, startRocket
 
-def dextoolActions(driver,pairAddress):
+def dextoolActions(driver,orderId,pairAddress):
     sleep(6)
     try:
         WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'card__close')))
         driver.find_element(By.CLASS_NAME,'card__close').click()
-        log_to_json('1st close button by class')
+        log_to_json('1st close button by class',orderId=orderId,pairAddress=pairAddress)
     except:
        pass
     
     # sleep(random.randint(2,5))
     try:
         driver.find_element(By.CLASS_NAME,'card__close').click()
-        log_to_json('1st close button by class')
+        log_to_json('1st close button by class',orderId=orderId,pairAddress=pairAddress)
     except:
         
-        log_to_json('no extra close')
+        log_to_json('no extra close',orderId=orderId,pairAddress=pairAddress)
     driver.implicitly_wait(5)
 
     try:
         driver.execute_script("document.querySelector('.close').click();")
-        log_to_json('2nd close button close')
+        log_to_json('2nd close button close',orderId=orderId,pairAddress=pairAddress)
     except:
-        log_to_json('noting 2nd found')
+        log_to_json('noting 2nd found',orderId=orderId,pairAddress=pairAddress)
     try:
         driver.find_element(By.CLASS_NAME,'card__close').click()
-        log_to_json('1st close button by class')
+        log_to_json('1st close button by class',orderId=orderId,pairAddress=pairAddress)
     except:
         
-        log_to_json('no extra close')
+        log_to_json('no extra close',orderId=orderId,pairAddress=pairAddress)
     driver.implicitly_wait(5)
 
     try:
         driver.execute_script("document.querySelector('.close').click();")
-        log_to_json('2nd close button close')
+        log_to_json('2nd close button close',orderId=orderId,pairAddress=pairAddress)
     except:
-        log_to_json('noting 2nd found')
+        log_to_json('noting 2nd found',orderId=orderId,pairAddress=pairAddress)
 
 
     sleep(random.randint(3,5))
@@ -279,16 +286,16 @@ def dextoolActions(driver,pairAddress):
     except:
      WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[placeholder="Search pair by symbol, name, contract or token"]')))
      search_input = driver.find_element(By.CSS_SELECTOR,'div[placeholder="Search pair by symbol, name, contract or token"]')
-     log_to_json('found by good xpath')
+     log_to_json('found by good xpath',orderId=orderId,pairAddress=pairAddress)
     search_input.click()
-    log_to_json('-----search input clicked-----')
+    log_to_json('-----search input clicked-----',orderId=orderId,pairAddress=pairAddress)
     sleep(1)
     search_input = driver.switch_to.active_element
     search_input.send_keys(pairAddress)
     sleep(3)
     link = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.results-container li a')))
     driver.execute_script("document.querySelectorAll('.results-container li a')[0].click();")
-    log_to_json('cllicked on the 1st searched tokken')
+    log_to_json('cllicked on the 1st searched tokken',orderId=orderId,pairAddress=pairAddress)
     
     sleep(3)
 
@@ -296,7 +303,7 @@ def dextoolActions(driver,pairAddress):
     try:
         WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]')))
         driver.find_element(By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]').click()
-        log_to_json('fav button clicked')
+        log_to_json('fav button clicked',orderId=orderId,pairAddress=pairAddress)
         sleep(2)
     except:
        pass
@@ -304,7 +311,7 @@ def dextoolActions(driver,pairAddress):
     # -------- clicking on social links-------
     try:    
         main_window = driver.current_window_handle
-        log_to_json(f'get the main window:{main_window}')
+        log_to_json(f'get the main window:{main_window}',orderId=orderId,pairAddress=pairAddress)
         
         WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CLASS_NAME,'shared-button')))
         shareBtn = driver.find_element(By.CLASS_NAME,'shared-button')
@@ -315,74 +322,74 @@ def dextoolActions(driver,pairAddress):
             driver.implicitly_wait(5)
             WebDriverWait(driver,5).until(EC.visibility_of_element_located((By.CSS_SELECTOR,'div[class="share-btn"][data-desc="Shared from DEXTools.io"]')))
             links_monk = driver.find_element(By.CSS_SELECTOR,'div[class="share-btn"][data-desc="Shared from DEXTools.io"]').find_elements(By.TAG_NAME,'a')
-            log_to_json('links found')
+            log_to_json('links found',orderId=orderId,pairAddress=pairAddress)
             for link in links_monk:
                 try:
-                    log_to_json('clicking on the link:',link)
+                    log_to_json(f'clicking on the link:{link}',orderId=orderId,pairAddress=pairAddress)
                     link.click()
-                    log_to_json('clicked')
+                    log_to_json('clicked',orderId=orderId,pairAddress=pairAddress)
                     sleep(3)
                     new_window = driver.window_handles[1]
-                    log_to_json('get the new window')
+                    log_to_json('get the new window',orderId=orderId,pairAddress=pairAddress)
                     driver.switch_to.window(new_window)
-                    log_to_json('switched to new window')
+                    log_to_json('switched to new window',orderId=orderId,pairAddress=pairAddress)
                     sleep(3)
                     driver.close()
-                    log_to_json('new window closes')
+                    log_to_json('new window closes',orderId=orderId,pairAddress=pairAddress)
                     driver.switch_to.window(main_window)
-                    log_to_json('back to new window')
+                    log_to_json('back to new window',orderId=orderId,pairAddress=pairAddress)
                     sleep(2)
                 except:
-                    log_to_json('error in loading the url')
+                    log_to_json('error in loading the url',orderId=orderId,pairAddress=pairAddress)
         except:
-            log_to_json('links not found')
+            log_to_json('links not found',orderId=orderId,pairAddress=pairAddress)
 
 
         try:
             
             WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)')))
             driver.find_element(By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)').click()
-            log_to_json('mondel window closed')
+            log_to_json('mondel window closed',orderId=orderId,pairAddress=pairAddress)
             sleep(3)
         except Exception as e:
-            log_to_json('error in closing model window')
+            log_to_json('error in closing model window',orderId=orderId,pairAddress=pairAddress)
             pass
     except Exception as e:
-        log_to_json('error in share links',e)
+        log_to_json(f'error in share links:{e}',orderId=orderId,pairAddress=pairAddress)
 
     # ---------clicking on swaping button--------
     try:
         driver.find_element(By.CSS_SELECTOR,'div[class="aggregator-accordion"]').click()
-        log_to_json('swap button found')
+        log_to_json('swap button found',orderId=orderId,pairAddress=pairAddress)
         sleep(1)
         driver.find_element(By.CSS_SELECTOR,'button[class="btn btn-primary btn-disclaimer"]').click()
         sleep(3)
     except:
-        log_to_json('unable to track swap button ')
+        log_to_json('unable to track swap button ',orderId=orderId,pairAddress=pairAddress)
     
     # --------scrolling the window---------
     screen_height = driver.execute_script("return window.screen.height;")   # get the screen height of the web
-    log_to_json(f'get the screen height:{screen_height}')
+    log_to_json(f'get the screen height:{screen_height}',orderId=orderId,pairAddress=pairAddress)
     i = 1
         # scroll one screen height each time
     scrol_numb= random.randint(2,3)
     while True:
         driver.implicitly_wait(5)   
         driver.execute_script("window.scrollTo(0, {screen_height}*{i});".format(screen_height=screen_height, i=i))
-        log_to_json(f'scrloing {i} time')
+        log_to_json(f'scrloing {i} time',orderId=orderId,pairAddress=pairAddress)
         i += 1
         sleep(3)
         # update scroll height each time after scrolled, as the scroll height can change after we scrolled the page
         scroll_height = driver.execute_script("return document.body.scrollHeight;") 
-        log_to_json(f'setting the now height:{screen_height}') 
+        log_to_json(f'setting the now height:{screen_height}',orderId=orderId,pairAddress=pairAddress) 
         # Break the loop when the height we need to scroll to is larger than the total scroll height
         if i==scrol_numb:
-            log_to_json('break the loop bcz the scroll window ended...')
+            log_to_json('break the loop bcz the scroll window ended...',orderId=orderId,pairAddress=pairAddress)
             break
 
 
-def run_bot(dexUrl,blockChain,pairAddress,target_Rocket):
-    log_to_json(f"Starting bot for {dexUrl} on Blockchain {blockChain} with pair {pairAddress}")
+def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
+    log_to_json(f"Starting bot for {dexUrl} on Blockchain {blockChain} with pair {pairAddress}",orderId=orderId,pairAddress=pairAddress)
     
     proxy_address = 'shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80'
     # Example target
@@ -395,40 +402,41 @@ def run_bot(dexUrl,blockChain,pairAddress,target_Rocket):
         try:
             driver = setup_driver(proxy_address=proxy_address)
             driver.get(dexUrl)
-            check_captcha(driver)  # Check and resolve captcha if any
+            check_captcha(driver,orderId,pairAddress)  # Check and resolve captcha if any
 
-            # Navigate to the specific blockchain page
-            driver.get(f'{dexUrl}{blockChain}')
-            check_captcha(driver)
 
             # Perform actions specific to DexScreener
             if dexUrl == 'https://dexscreener.com/':
-                target, iteration, newlikes, startRocket = dexscreenerActions(driver, pairAddress, target_Rocket, iteration, newlikes, startRocket)
+                target, iteration, newlikes, startRocket = dexscreenerActions(driver, pairAddress, target_Rocket, iteration, newlikes, startRocket,orderId)
                 if target:
-                    print("Target likes reached.")
+                    log_to_json("Target likes reached.",orderId=orderId,pairAddress=pairAddress)
                     continue_loop = False # Stop if target is reached
             else:
                 # Other actions for different URLs
-                pass
+                # Navigate to the specific blockchain page
+                driver.get(f'{dexUrl}{blockChain}')
+                check_captcha(driver)
+                dextoolActions(driver,pairAddress)
 
-            restart(driver)  # Clean up and prepare for next iteration
+            restart(driver,orderId,pairAddress)  # Clean up and prepare for next iteration
         except Exception as e:
-            print(f"An error occurred: {e}")
-            restart(driver)  # Ensure driver is properly restarted after an error
+            log_to_json(f"An error occurred: {e}",orderId=orderId,pairAddress=pairAddress)
+            restart(driver,orderId,pairAddress)  # Ensure driver is properly restarted after an error
 
 # Corrected global variables initialization
 
 if __name__ == "__main__":
-    print('Starting the bot_script----')
     dexUrl =   sys.argv[1]
     blockChain = sys.argv[2]
     pairAddress = sys.argv[3]
-    target_Rocket = 100
-    print(f'got the variable {dexUrl}, {blockChain}, {pairAddress}.target{target_Rocket}')
+    orderId = sys.argv[4]
+    target_Rocket = 5
+    log_to_json('Starting the bot_script----',orderId=orderId,pairAddress=pairAddress)
+    log_to_json(f'got the variable {dexUrl}, {blockChain}, {pairAddress}.target{target_Rocket}',orderId=orderId,pairAddress=pairAddress)
 
     processes = []
     for _ in range(2):
-        process_obj = Process(target=run_bot, args=(dexUrl, blockChain, pairAddress,target_Rocket))
+        process_obj = Process(target=run_bot, args=(dexUrl, blockChain, pairAddress,orderId,target_Rocket))
         processes.append(process_obj)
         process_obj.start()
 

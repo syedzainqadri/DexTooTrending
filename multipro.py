@@ -5,10 +5,10 @@ from flask import Flask, request, jsonify
 import logging
 
 # Configure logging to file
-logging.basicConfig(level=logging.DEBUG, 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    filename='app.log',  # Log will be written to 'app.log'
-                    filemode='w')  # Use 'a' to append to the file instead of 'w' to overwrite
+# logging.basicConfig(level=logging.DEBUG, 
+#                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+#                     filename='app.log',  # Log will be written to 'app.log'
+#                     filemode='w')  # Use 'a' to append to the file instead of 'w' to overwrite
 
 app = Flask(__name__)
 
@@ -45,7 +45,7 @@ def setup_environment(pair_address):
 
 import shutil  # Import shutil for removing directory trees
 
-def create_and_run_bot(dex_url, blockchain, pair_address): 
+def create_and_run_bot(dex_url, blockchain, pair_address,orderId): 
     """Sets up environment, runs the bot script in a subprocess, and cleans up."""
     env_dir = setup_environment(pair_address)
     subprocess.run(["python", "-m", "venv", env_dir], check=True)
@@ -57,13 +57,13 @@ def create_and_run_bot(dex_url, blockchain, pair_address):
 
     # Install dependencies
     subprocess.run([pip_path, "install", "--upgrade", "pip", "setuptools", "wheel"], check=True)
-    subprocess.run([pip_path, "install", "selenium", "flask", "selenium-wire", "blinker==1.7.0", "mitmproxy"], check=True)
+    subprocess.run([pip_path, "install", "selenium", "flask", "selenium-wire", "blinker==1.7.0", "mitmproxy","firebase_admin"], check=True)
     
     # Execute bot script in a subprocess
     bot_script_path = "bot_script.py"
     process = None
     try:
-        process = subprocess.Popen([python_path, bot_script_path, dex_url, blockchain, pair_address])
+        process = subprocess.Popen([python_path, bot_script_path, dex_url, blockchain, pair_address, orderId])
         process.wait()  # Wait for the subprocess to finish
         logging.info(f"Bot script {bot_script_path} started and completed successfully.")
     except subprocess.CalledProcessError as e:
@@ -78,23 +78,24 @@ def create_and_run_bot(dex_url, blockchain, pair_address):
             except Exception as e:
                 logging.error(f"Failed to remove virtual environment at {env_dir}: {e}")
 
-def background_task(dex_url, blockchain, pair_address):
+def background_task(dex_url, blockchain, pair_address,orderId):
     """Background task that runs the bot."""
-    create_and_run_bot(dex_url, blockchain, pair_address)
+    create_and_run_bot(dex_url, blockchain, pair_address,orderId)
 
 @app.route('/generate-url', methods=['POST'])
 def generate_url():
     """API endpoint to start the bot and generate a URL."""
     try:
         data = request.get_json()
-        dex_url = data.get('dexType')
-        blockchain = data.get('blockchain')
+        dex_url = data.get('url')
+        blockchain = data.get('chain')
         pair_address = data.get('pairAddress')
+        orderId = data.get('orderId')
 
         if not blockchain or not pair_address:
             return jsonify({'error': "Both 'blockchain' and 'pairAddress' are required."}), 400
 
-        thread = threading.Thread(target=background_task, args=(dex_url, blockchain, pair_address))
+        thread = threading.Thread(target=background_task, args=(dex_url, blockchain, pair_address,orderId))
         thread.start()
         logging.debug(f"Thread started for {dex_url}{blockchain}{pair_address}")
 
