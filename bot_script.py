@@ -252,15 +252,14 @@ def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, itera
     except:
        pass
     
-    # sleep(random.randint(2,5))
+    sleep(random.randint(2,5))
     try:
         driver.find_element(By.CLASS_NAME,'card__close').click()
         log_to_json('1st close button by class',orderId=orderId,pairAddress=pairAddress)
     except:
         
         log_to_json('no extra close',orderId=orderId,pairAddress=pairAddress)
-    driver.implicitly_wait(5)
-
+    
     try:
         driver.execute_script("document.querySelector('.close').click();")
         log_to_json('2nd close button close',orderId=orderId,pairAddress=pairAddress)
@@ -272,7 +271,6 @@ def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, itera
     except:
         
         log_to_json('no extra close',orderId=orderId,pairAddress=pairAddress)
-    driver.implicitly_wait(5)
 
     try:
         driver.execute_script("document.querySelector('.close').click();")
@@ -282,14 +280,14 @@ def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, itera
 
 
     sleep(random.randint(3,5))
-    driver.get(f'{dexUrl}{blockChain}/')    
+        
     #---------searching the tokkten-------------
     try:
-     WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.CLASS_NAME,'search-container')))
+    #  WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.CLASS_NAME,'search-container')))
      search_input = driver.find_element(By.CLASS_NAME,'search-container')
     except:
-     WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'div[placeholder="Search pair by symbol, name, contract or token"]')))
-     search_input = driver.find_element(By.CSS_SELECTOR,'div[placeholder="Search pair by symbol, name, contract or token"]')
+    #  WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'input[placeholder="Search pair by symbol, name, contract or token"]')))
+     search_input = driver.find_element(By.CSS_SELECTOR,'input[placeholder="Search pair by symbol, name, contract or token"]')
      log_to_json('found by good xpath',orderId=orderId,pairAddress=pairAddress)
     search_input.click()
     log_to_json('-----search input clicked-----',orderId=orderId,pairAddress=pairAddress)
@@ -297,7 +295,7 @@ def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, itera
     search_input = driver.switch_to.active_element
     search_input.send_keys(pairAddress)
     sleep(3)
-    link = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.results-container li a')))
+    link = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.results-container li a')))
     driver.execute_script("document.querySelectorAll('.results-container li a')[0].click();")
     log_to_json('cllicked on the 1st searched tokken',orderId=orderId,pairAddress=pairAddress)
     
@@ -305,8 +303,11 @@ def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, itera
 
     # --------- adding to fav by clicking star
     try:
-        WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]')))
-        driver.find_element(By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]').click()
+        # WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]')))
+        try:
+            driver.find_element(By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]').click()
+        except:
+            driver.find_element(By.CLASS_NAME,'ng-star-inserted').click() 
         iteration +=1
         newlikes  +=1
         log_to_json(f'Stars  clicked:{newlikes}',orderId=orderId,pairAddress=pairAddress)
@@ -325,13 +326,13 @@ def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, itera
         main_window = driver.current_window_handle
         log_to_json(f'get the main window:{main_window}',orderId=orderId,pairAddress=pairAddress)
         
-        WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CLASS_NAME,'shared-button')))
+        # WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.CLASS_NAME,'shared-button')))
         shareBtn = driver.find_element(By.CLASS_NAME,'shared-button')
         shareBtn.click()
 
         sleep(3)
         try:
-            driver.implicitly_wait(5)
+            # driver.implicitly_wait(5)
             WebDriverWait(driver,5).until(EC.visibility_of_element_located((By.CSS_SELECTOR,'div[class="share-btn"][data-desc="Shared from DEXTools.io"]')))
             links_monk = driver.find_element(By.CSS_SELECTOR,'div[class="share-btn"][data-desc="Shared from DEXTools.io"]').find_elements(By.TAG_NAME,'a')
             log_to_json('links found',orderId=orderId,pairAddress=pairAddress)
@@ -359,7 +360,7 @@ def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, itera
 
         try:
             
-            WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)')))
+            # WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)')))
             driver.find_element(By.CSS_SELECTOR ,'.modal-header > button:nth-child(2)').click()
             log_to_json('mondel window closed',orderId=orderId,pairAddress=pairAddress)
             sleep(3)
@@ -397,12 +398,14 @@ def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
     while continue_loop and iteration <= 2000:  # Example limit for iterations
         try:
             driver = setup_driver(proxy_address=proxy_address)
-            driver.get(dexUrl)
-            check_captcha(driver,orderId,pairAddress)  # Check and resolve captcha if any
+            # driver.get(dexUrl)
+            # check_captcha(driver,orderId,pairAddress)  # Check and resolve captcha if any
 
 
             # Perform actions specific to DexScreener
             if dexUrl == 'https://dexscreener.com/':
+                driver.get(dexUrl)
+                check_captcha(driver,orderId,pairAddress)
                 target, iteration, newlikes, startRocket = dexscreenerActions(driver, pairAddress, target_Rocket, iteration, newlikes, startRocket,orderId)
                 if target:
                     log_to_json("Target likes reached.",orderId=orderId,pairAddress=pairAddress)
@@ -410,6 +413,8 @@ def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
             else:
                 # Other actions for different URLs
                 # Navigate to the specific blockchain page
+                driver.get(f'{dexUrl}{blockChain}')
+                check_captcha(driver,orderId,pairAddress)
                 target, iteration, newlikes, startRocket = dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, iteration, newlikes, startRocket,orderId)
                 if target:
                     log_to_json("Target likes reached.",orderId=orderId,pairAddress=pairAddress)
