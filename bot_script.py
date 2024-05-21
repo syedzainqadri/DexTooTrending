@@ -239,7 +239,11 @@ def dexscreenerActions(driver,pairAddress,target_Rocket, iteration, newlikes, st
         log_to_json('not found rockect',orderId=orderId,pairAddress=pairAddress)
     return target , iteration , newlikes, startRocket
 
-def dextoolActions(driver,orderId,pairAddress):
+
+
+
+
+def dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, iteration, newlikes, startRocket,orderId):
     sleep(6)
     try:
         WebDriverWait(driver,30).until(EC.element_to_be_clickable((By.CLASS_NAME,'card__close')))
@@ -278,7 +282,7 @@ def dextoolActions(driver,orderId,pairAddress):
 
 
     sleep(random.randint(3,5))
-    
+    driver.get(f'{dexUrl}{blockChain}/')    
     #---------searching the tokkten-------------
     try:
      WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.CLASS_NAME,'search-container')))
@@ -303,10 +307,18 @@ def dextoolActions(driver,orderId,pairAddress):
     try:
         WebDriverWait(driver,60).until(EC.element_to_be_clickable((By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]')))
         driver.find_element(By.CSS_SELECTOR,'button[data-event-action="click_action_fav"]').click()
-        log_to_json('fav button clicked',orderId=orderId,pairAddress=pairAddress)
-        sleep(2)
+        iteration +=1
+        newlikes  +=1
+        log_to_json(f'Stars  clicked:{newlikes}',orderId=orderId,pairAddress=pairAddress)
+        sleep(3)
     except:
-       pass
+       log_to_json('clicked already or some error',orderId=orderId,pairAddress=pairAddress) 
+
+    if newlikes >= target_Rocket:
+        log_to_json('-----targeted likes completed----',orderId=orderId,pairAddress=pairAddress)
+        target = True
+    else:
+        target = False
 
     # -------- clicking on social links-------
     try:    
@@ -367,25 +379,9 @@ def dextoolActions(driver,orderId,pairAddress):
     except:
         log_to_json('unable to track swap button ',orderId=orderId,pairAddress=pairAddress)
     
-    # --------scrolling the window---------
-    screen_height = driver.execute_script("return window.screen.height;")   # get the screen height of the web
-    log_to_json(f'get the screen height:{screen_height}',orderId=orderId,pairAddress=pairAddress)
-    i = 1
-        # scroll one screen height each time
-    scrol_numb= random.randint(2,3)
-    while True:
-        driver.implicitly_wait(5)   
-        driver.execute_script("window.scrollTo(0, {screen_height}*{i});".format(screen_height=screen_height, i=i))
-        log_to_json(f'scrloing {i} time',orderId=orderId,pairAddress=pairAddress)
-        i += 1
-        sleep(3)
-        # update scroll height each time after scrolled, as the scroll height can change after we scrolled the page
-        scroll_height = driver.execute_script("return document.body.scrollHeight;") 
-        log_to_json(f'setting the now height:{screen_height}',orderId=orderId,pairAddress=pairAddress) 
-        # Break the loop when the height we need to scroll to is larger than the total scroll height
-        if i==scrol_numb:
-            log_to_json('break the loop bcz the scroll window ended...',orderId=orderId,pairAddress=pairAddress)
-            break
+    return target , iteration , newlikes, startRocket
+   
+    
 
 
 def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
@@ -414,14 +410,18 @@ def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
             else:
                 # Other actions for different URLs
                 # Navigate to the specific blockchain page
-                driver.get(f'{dexUrl}{blockChain}')
-                check_captcha(driver)
-                dextoolActions(driver,pairAddress)
+                target, iteration, newlikes, startRocket = dextoolActions(driver, dexUrl, blockChain, pairAddress, target_Rocket, iteration, newlikes, startRocket,orderId)
+                if target:
+                    log_to_json("Target likes reached.",orderId=orderId,pairAddress=pairAddress)
+                    continue_loop = False # Stop if target is reached
+
 
             restart(driver,orderId,pairAddress)  # Clean up and prepare for next iteration
         except Exception as e:
             log_to_json(f"An error occurred: {e}",orderId=orderId,pairAddress=pairAddress)
             restart(driver,orderId,pairAddress)  # Ensure driver is properly restarted after an error
+
+
 
 # Corrected global variables initialization
 

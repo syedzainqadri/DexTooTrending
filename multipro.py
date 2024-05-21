@@ -2,15 +2,18 @@ import os
 import subprocess
 import threading
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import CORS
 import logging
+import shutil
+
+app = Flask(__name__)
+CORS(app)  # Enable CORS on all routes
 
 # Configure logging to file
 # logging.basicConfig(level=logging.DEBUG, 
 #                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 #                     filename='app.log',  # Log will be written to 'app.log'
 #                     filemode='w')  # Use 'a' to append to the file instead of 'w' to overwrite
-
-app = Flask(__name__)
 
 # List to keep track of subprocesses
 subprocesses = []
@@ -43,15 +46,13 @@ def setup_environment(pair_address):
     logging.debug(f'Folder for env: {env_dir}')
     return env_dir
 
-import shutil  # Import shutil for removing directory trees
-
 def create_and_run_bot(dex_url, blockchain, pair_address,orderId): 
     """Sets up environment, runs the bot script in a subprocess, and cleans up."""
-    env_dir = setup_environment(pair_address)
-    subprocess.run(["python", "-m", "venv", env_dir], check=True)
-    
     scripts_dir = "Scripts" if os.name == 'nt' else "bin"
     python_os = "python" if os.name == 'nt' else "python3"
+    env_dir = setup_environment(pair_address)
+    subprocess.run([python_os, "-m", "venv", env_dir], check=True)
+    
     pip_path = os.path.join(env_dir, scripts_dir, "pip")
     python_path = os.path.join(env_dir, scripts_dir, python_os)
 
@@ -93,9 +94,9 @@ def generate_url():
         orderId = data.get('orderId')
 
         if not blockchain or not pair_address:
-            return jsonify({'error': "Both 'blockchain' and 'pairAddress' are required."}), 400
+            return jsonify({'error': "Both 'blockchain' and 'pair_address' are required."}), 400
 
-        thread = threading.Thread(target=background_task, args=(dex_url, blockchain, pair_address,orderId))
+        thread = threading.Thread(target=background_task, args=(dex_url, blockchain, pair_address, orderId))
         thread.start()
         logging.debug(f"Thread started for {dex_url}{blockchain}{pair_address}")
 
