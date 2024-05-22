@@ -429,7 +429,7 @@ def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
             restart(driver,orderId,pairAddress)  # Clean up and prepare for next iteration
         except Exception as e:
             # log_to_json(f"An error occurred: {e}",orderId=orderId,pairAddress=pairAddress)
-            log_to_json('error:{e}',log_to_json,pairAddress)
+            log_to_json('error:{e}',orderId,pairAddress)
             restart(driver,orderId,pairAddress)  # Ensure driver is properly restarted after an error
 
 
