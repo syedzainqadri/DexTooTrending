@@ -392,7 +392,7 @@ def dextoolActions(driver, pairAddress, target_Rocket, iteration, newlikes, star
 def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
     log_to_json(f"Starting bot for {dexUrl} on Blockchain {blockChain} with pair {pairAddress}",orderId=orderId,pairAddress=pairAddress)
     
-    proxy_address = 'shnuqnvu-rotate:mg5i9hbxda5c@p.webshare.io:80'
+    proxy_address = 'otaflimz-rotate:dkii86y6u68v@p.webshare.io:80'
     # Example target
     iteration = 1
     newlikes = 0
