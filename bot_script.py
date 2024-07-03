@@ -59,17 +59,17 @@ def setup_driver(proxy_address):
     driver = webdriver.Firefox(options=options, seleniumwire_options=seleniumwire_options)
     return driver
 
-def check_ip(driver, orderId, pairAddress,url="https://api.ipify.org"):
- driver.get(url)
- ip = driver.find_element(By.TAG_NAME,"body").text
- log_to_json(f"Current IP:{ip}", orderId, pairAddress)
+# def check_ip(driver, orderId, pairAddress,url="https://api.ipify.org"):
+#  driver.get(url)
+#  ip = driver.find_element(By.TAG_NAME,"body").text
+#  log_to_json(f"Current IP:{ip}", orderId, pairAddress)
 
-def restart(driver,orderId, pairAddress):
- try:
-    driver.delete_all_cookies()
- except:
-    log_to_json('no cookies',orderId, pairAddress)
- driver.quit()
+# def restart(driver,orderId, pairAddress):
+#  try:
+#     driver.delete_all_cookies()
+#  except:
+#     log_to_json('no cookies',orderId, pairAddress)
+#  driver.quit()
 
 def check_captcha(driver,orderId, pairAddress):
  try: 
@@ -392,7 +392,7 @@ def dextoolActions(driver, pairAddress, target_Rocket, iteration, newlikes, star
 def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
     log_to_json(f"Starting bot for {dexUrl} on Blockchain {blockChain} with pair {pairAddress}",orderId=orderId,pairAddress=pairAddress)
     
-    proxy_address = 'otaflimz-rotate:dkii86y6u68v@p.webshare.io:80'
+    proxy_address = 'trending-rotate:bot123123@p.webshare.io:80'
     # Example target
     iteration = 1
     newlikes = 0
@@ -437,11 +437,16 @@ def run_bot(dexUrl,blockChain,pairAddress,orderId,target_Rocket):
 # Corrected global variables initialization
 
 if __name__ == "__main__":
-    dexUrl =  sys.argv[1]
-    blockChain =  sys.argv[2]
-    pairAddress = sys.argv[3]
-    orderId = sys.argv[4]
-    target_Rocket = 5
+    dexUrl =  "https://dexscreener.com/"
+    blockChain =  "solana"
+    pairAddress = "9DJrGmVqHxejzErYsc4LwCSaeAePXH1pCxUzLJVNfV77"
+    orderId = "1"
+    target_Rocket = 500
+    # dexUrl =  sys.argv[1]
+    # blockChain =  sys.argv[2]
+    # pairAddress = sys.argv[3]
+    # orderId = sys.argv[4]
+    # target_Rocket = 5
     log_to_json('Starting the bot_script----',orderId=orderId,pairAddress=pairAddress)
     log_to_json(f'got the variable {dexUrl}, {blockChain}, {pairAddress}.target{target_Rocket}',orderId=orderId,pairAddress=pairAddress)
 
